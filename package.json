@@ -1,0 +1,13 @@
+{
+  "name": "y",
+  "version": "y",
+  "description": "view your crypto portfolio in a nice way",
+  "main": "y",
+  "repository": "y",
+  "author": "y",
+  "license": "y",
+  "private": false,
+  "dependencies": {
+    "coingecko-api": "^1.0.10"
+  }
+}
