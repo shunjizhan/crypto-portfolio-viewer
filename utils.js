@@ -99,18 +99,26 @@ const combineCoinCounts = (x, y) => {
   return res;
 };
 
-const getCoinValues = async (name, coinCounts) => {
+const sortByValue = values => Object.entries(values).sort(
+  ([_, val1], [__, val2]) => val2 - val1
+);
+
+const getCoinValues = async (name, coinCounts, sort = sortByValue) => {
   const prices = await getAllPrices(Object.keys(coinCounts));
-  coinValues = calcCoinValues(coinCounts, prices);
+  let coinValues = calcCoinValues(coinCounts, prices);
+
+  if (typeof sort === 'function') {
+    coinValues = sort(coinValues);
+  }
 
   console.log(`${name} balance:`, coinValues);
 };
 
 const main = async () => {
-  // let allCountCounts = {};
+  let allCountCounts = {};
 
-  // exchange coins
-  Object.entries(keys).forEach(async ([name, key]) => {
+  /* ----------- exchange coins ----------- */
+  const pendings = Object.entries(keys).map(async ([name, key]) => {
     let exchange = new ccxt[name](key);
 
     const rawBalances = await exchange.fetchBalance();
@@ -121,16 +129,20 @@ const main = async () => {
     );
 
     await getCoinValues(name, coinCounts);
-    // allCountCounts = combineCoinCounts(allCountCounts, coinCounts);
+    allCountCounts = combineCoinCounts(allCountCounts, coinCounts);
   });
 
-  // outside coins
+  
+  /* ----------- other coins ----------- */
   const otherCoinCounts = sumOtherCoinCounts(otherCoins);
-  await getCoinValues('othercoins', otherCoinCounts)
-  // allCountCounts = combineCoinCounts(allCountCounts, coinCounts);
-
-  // all coins
-  // await getCoinValues('all coins', allCountCounts)
+  pendings.push(
+    await getCoinValues('othercoins', otherCoinCounts)
+  );
+  allCountCounts = combineCoinCounts(allCountCounts, otherCoinCounts);
+  
+  /* ----------- all coins ----------- */
+  await Promise.all(pendings);
+  await getCoinValues('all coins', allCountCounts);
 };
 
 main();
