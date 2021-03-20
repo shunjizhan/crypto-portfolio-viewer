@@ -1,5 +1,31 @@
 const CoinGecko = require('coingecko-api');
+const ccxt = require('ccxt');
+
+const data = require('./data');
+
 const CoinGeckoClient = new CoinGecko();
+
+const {
+  keys,
+  otherCoins,
+  addresses,
+} = data;
+
+const sanitizeCoinName = c => c.toLowerCase();
+const filterObj = (obj, func) => Object.fromEntries(
+  Object.entries(obj).filter(func)
+);
+const ignoreValueBelow = x => (([key, value]) => value > x);
+const sumArray = arr => arr.reduce((s, x) => s + x, 0);
+
+const sumOtherCoinCounts = coins => {
+  const res = {};
+  Object.entries(coins).forEach(([name, counts]) => {
+    res[name] = sumArray(counts)
+  });
+
+  return res;
+}
 
 const getPrices = async (params = {}) => {
   const {
@@ -33,7 +59,7 @@ const getAllPrices = async coins => {
   const notSupported = {};
 
   coins.forEach(c => {
-    const id = symbol2Id[c.toLowerCase()];
+    const id = symbol2Id[sanitizeCoinName(c)];
     if (id) {
       ids.push(id);
     } else {
@@ -50,77 +76,61 @@ const getAllPrices = async coins => {
   };
 };
 
+const calcCoinValues = (coinCounts, prices, ignoreBelow = 100) => {
+  const res = {};
+  Object.entries(coinCounts).forEach(([name, count]) => {
+    const price = prices[sanitizeCoinName(name)];
+    res[name] = parseInt(count * price);
+  });
 
-(async () => {
-  let data = await getAllPrices([
-    "PCX",
-    "FIL",
-    "XOR",
-    "RING",
-    "AR",
-    "KLP",
-    "EDG",
-    "FIS",
-    "POLS",
-    "HEGIC",
-    "API3",
-    "KP3R",
-    "INJ",
-    "MATIC",
-    "MIR",
-    "ARMOR",
-    "ALPHA",
-    "BAO",
-    "SDT",
-    "EWT",
-    "PBR",
-    "front",
-    "BFC",
-    "OM",
-    "RFUEL",
-    "TPT",
-    "BMI",
-    "ROOM",
-    "UMB",
-    "SPDR",
-    "FCL",
-    "POLK",
-    "SUPER",
-    "DVG",
-    "FXF",
-    "BFLY",
-    "PAID",
-    "CVR",
-    "DIS",
-    "YOP",
-    "NORD",
-    "TEN",
-    "XED",
-    "FIRE",
-    "Xdef2",
-    "ROYA",
-    "MAHA",
-    "QUICK",
-    "KYL",
-    "APYS",
-    "OCEAN",
-    "LIT",
-    "REEF",
-    "BLZ",
-    "CELR",
-    "OAX",
-    "PNT",
-    "ORN",
-    "CAKE",
-    "BNB",
-    "BLANK",
-    "BONDLY",
-    "BCUG",
-    "KONO",
-    "ODDZ",
-    "ERN",
-    "CGG",
-  ]);
+  return filterObj(res, ignoreValueBelow(ignoreBelow));
+};
 
-  console.log(data);
-})();
+const combineCoinCounts = (x, y) => {
+  const res = { ...x };
+  Object.entries(y).forEach(([name, count]) => {
+    if (res[name]) {
+      res[name] += count;
+    } else {
+      res[name] = count;
+    }
+  });
+
+  return res;
+};
+
+const getCoinValues = async (name, coinCounts) => {
+  const prices = await getAllPrices(Object.keys(coinCounts));
+  coinValues = calcCoinValues(coinCounts, prices);
+
+  console.log(`${name} balance:`, coinValues);
+};
+
+const main = async () => {
+  // let allCountCounts = {};
+
+  // exchange coins
+  Object.entries(keys).forEach(async ([name, key]) => {
+    let exchange = new ccxt[name](key);
+
+    const rawBalances = await exchange.fetchBalance();
+
+    const coinCounts = filterObj(
+      rawBalances.total,
+      ignoreValueBelow(0),
+    );
+
+    await getCoinValues(name, coinCounts);
+    // allCountCounts = combineCoinCounts(allCountCounts, coinCounts);
+  });
+
+  // outside coins
+  const otherCoinCounts = sumOtherCoinCounts(otherCoins);
+  await getCoinValues('othercoins', otherCoinCounts)
+  // allCountCounts = combineCoinCounts(allCountCounts, coinCounts);
+
+  // all coins
+  // await getCoinValues('all coins', allCountCounts)
+};
+
+main();
