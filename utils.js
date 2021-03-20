@@ -114,7 +114,56 @@ const getCoinValues = async (name, coinCounts, sort = sortByValue) => {
   console.log(`${name} balance:`, coinValues);
 };
 
+
+
+let tolCount = 0;
+let tolDiff = 0;
+const getPriceDiff = async (coin, start, end) => {
+  symbol2Id = symbol2Id || await getSymbol2Id();
+  let symbol = symbol2Id[sanitizeCoinName(coin)];
+  coin === 'LIT' && (symbol = 'litentry')
+
+  try {
+    const oldData = await CoinGeckoClient.coins.fetchHistory(symbol, {
+      date: start,
+    });
+
+    const curData = await CoinGeckoClient.coins.fetchHistory(symbol, {
+      date: end,
+    });
+
+    const oldPrice = oldData.data.market_data.current_price.usd;
+    const curPrice = curData.data.market_data.current_price.usd;
+    
+    const diff = parseInt((curPrice - oldPrice) * 1.0 / oldPrice * 100);
+    
+    const sign = diff > 0 ? '+' : '';
+    console.log(`${coin}: ${sign}${diff}%`);
+
+    tolCount += 1;
+    tolDiff += diff;
+  } catch (err) {
+    console.log('!!!!!!!!!!!!!!!!!!!!!', coin);
+    console.log(err);
+  }
+};
+
+getAllPriceDiff = async coins => {
+  const start = '26-02-2021'
+  const end = '20-03-2021'
+  await Promise.all(coins.map(s => getPriceDiff(s, start, end)));
+
+  console.log(`平均: +${tolDiff / tolCount}%`);
+  getPriceDiff('btc', start, end)
+  getPriceDiff('eth', start, end)
+  getPriceDiff('dot', start, end)
+};
+
+
+
 const main = async () => {
+  // getAllPriceDiff(['btc', 'eth', 'ltc']);
+
   let allCountCounts = {};
 
   /* ----------- exchange coins ----------- */
