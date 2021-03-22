@@ -16,6 +16,7 @@ const filterObj = (obj, func) => Object.fromEntries(
   Object.entries(obj).filter(func)
 );
 const ignoreValueBelow = x => (([key, value]) => value > x);
+const ignoreAbsValueBelow = x => (([key, value]) => Math.abs(value) > x);
 const sumArray = arr => arr.reduce((s, x) => s + x, 0);
 
 const sumOtherCoinCounts = coins => {
@@ -76,14 +77,14 @@ const getAllPrices = async coins => {
   };
 };
 
-const calcCoinValues = (coinCounts, prices, ignoreBelow = 100) => {
+const calcCoinValues = (coinCounts, prices, ignoreAbsBelow = 100) => {
   const res = {};
   Object.entries(coinCounts).forEach(([name, count]) => {
     const price = prices[sanitizeCoinName(name)];
     res[name] = parseInt(count * price);
   });
 
-  return filterObj(res, ignoreValueBelow(ignoreBelow));
+  return filterObj(res, ignoreAbsValueBelow(ignoreAbsBelow));
 };
 
 const combineCoinCounts = (x, y) => {
@@ -113,7 +114,6 @@ const getCoinValues = async (name, coinCounts, sort = sortByValue) => {
 
   console.log(`${name} balance:`, coinValues);
 };
-
 
 
 let tolCount = 0;
@@ -159,39 +159,73 @@ getAllPriceDiff = async coins => {
   getPriceDiff('dot', start, end)
 };
 
-
-
-const main = async () => {
-  // getAllPriceDiff(['btc', 'eth', 'ltc']);
-
+const getAllBalances = async extraFetchers => {
   let allCountCounts = {};
 
   /* ----------- exchange coins ----------- */
   const pendings = Object.entries(keys).map(async ([name, key]) => {
     let exchange = new ccxt[name](key);
 
-    const rawBalances = await exchange.fetchBalance();
+    const rawCounts = await exchange.fetchBalance();
 
-    const coinCounts = filterObj(
-      rawBalances.total,
+    let coinCounts = filterObj(
+      rawCounts.total,
       ignoreValueBelow(0),
     );
+
+    const fetcher = extraFetchers[name];   // extra functions to calculate future balances
+    if (fetcher) {
+      const extraCoinCount = await fetcher(exchange);
+      coinCounts = combineCoinCounts(coinCounts, extraCoinCount)
+    }
 
     await getCoinValues(name, coinCounts);
     allCountCounts = combineCoinCounts(allCountCounts, coinCounts);
   });
 
-  
+
   /* ----------- other coins ----------- */
   const otherCoinCounts = sumOtherCoinCounts(otherCoins);
   pendings.push(
     await getCoinValues('othercoins', otherCoinCounts)
   );
   allCountCounts = combineCoinCounts(allCountCounts, otherCoinCounts);
-  
+
   /* ----------- all coins ----------- */
   await Promise.all(pendings);
   await getCoinValues('all coins', allCountCounts);
+};
+
+const fetchBinanceContractBalances = async binance => {
+  const res = await binance.fetchBalance({ type: 'future' });
+
+  const curPositions = res.info.positions.filter(x => x.positionAmt > 0);
+  const coinCount = res.total;      // total balances in future account
+
+  curPositions.forEach(p => {
+    const { symbol, positionAmt, notional } = p;
+    const coinName = symbol.replace('USDT', '');
+    const count = parseInt(positionAmt);
+
+    coinCount[coinName] = coinCount[coinName]
+      ? coinCount[coinName] + count
+      : count;
+    coinCount['USDT'] -= notional;
+  });
+
+  return filterObj(
+    coinCount,
+    ([name, count]) => count !== 0,
+  );
+};
+
+const main = async () => {
+  // getAllPriceDiff(['btc', 'eth', 'ltc']);
+
+  extraFetchers = {
+    binance: fetchBinanceContractBalances,
+  }
+  getAllBalances(extraFetchers);
 };
 
 main();
