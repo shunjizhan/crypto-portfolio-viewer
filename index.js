@@ -3,6 +3,8 @@ const ccxt = require('ccxt');
 const utils = require('./utils');
 const data = require('./data');
 
+const ethUtils = require('./ethUtils');
+
 const {
   keys,
   otherCoins,
@@ -18,6 +20,10 @@ const {
   ignoreValueBelow,
   sortByValue,
 } = utils;
+
+const {
+  getAllTokensCount,
+} = ethUtils;
 
 getAllPriceDiff = async coins => {
   const start = '26-02-2021'
@@ -58,9 +64,16 @@ const getAllBalances = async (extraFetchers) => {
   /* ----------- other coins ----------- */
   const otherCoinCounts = sumOtherCoinCounts(otherCoins);
   pendings.push(
-    await getCoinValues('othercoins', otherCoinCounts)
+    await getCoinValues('other coins', otherCoinCounts)
   );
   allCountCounts = combineCoinCounts(allCountCounts, otherCoinCounts);
+    
+  /* ----------- eth coins ----------- */
+  const ethCoinCounts = await getAllTokensCount(addresses);
+  pendings.push(
+    await getCoinValues('ETH coins', ethCoinCounts)
+  );
+  allCountCounts = combineCoinCounts(allCountCounts, ethCoinCounts);
 
   /* ----------- all coins ----------- */
   await Promise.all(pendings);
