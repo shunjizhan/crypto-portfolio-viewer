@@ -8,6 +8,7 @@
   "license": "y",
   "private": false,
   "dependencies": {
+    "axios": "^0.21.1",
     "ccxt": "^1.43.76",
     "coingecko-api": "^1.0.10"
   }
