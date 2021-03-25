@@ -1,9 +1,10 @@
+const { memoize } = require('lodash');
 const CoinGecko = require('coingecko-api');
 const CoinGeckoClient = new CoinGecko();
 
 const sanitizeCoinName = c => c.toLowerCase();      // TODO: duplicate
 
-const getSymbol2Id = async () => {
+const _getSymbol2Id = async () => {
   const data = await CoinGeckoClient.coins.list();
   return data.data.reduce((memo, cur) => {
     const { id, symbol, name } = cur;
@@ -11,7 +12,8 @@ const getSymbol2Id = async () => {
 
     return memo;
   }, {});
-}
+};
+const getSymbol2Id = memoize(_getSymbol2Id);
 
 const getPrices = async (params = {}) => {
   const {
@@ -28,9 +30,8 @@ const getPrices = async (params = {}) => {
   }, {});
 };
 
-let symbol2Id;
 const getAllPrices = async coins => {
-  symbol2Id = symbol2Id || await getSymbol2Id();
+  symbol2Id = await getSymbol2Id();
   const ids = [];
   const notSupported = {};
 
