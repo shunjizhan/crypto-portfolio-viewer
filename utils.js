@@ -62,6 +62,7 @@ const getCoinValues = async (name, _coinCounts, sort = sortByValue, transform = 
   }
 
   console.log(`${name} balance:`, coinValues);
+  return coinValues;
 };
 
 const sortByValue = values => Object.entries(values).sort(

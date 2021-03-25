@@ -1,9 +1,8 @@
-const ccxt = require('ccxt');
 
 const utils = require('./utils');
-const data = require('./data');
-
 const ethUtils = require('./ethUtils');
+const exchangeUtils = require('./exchangeUtils');
+const data = require('./data');
 
 const {
   keys,
@@ -15,15 +14,20 @@ const {
   combineCoinCounts,
   sanitizeCoinName,
   getCoinValues,
-  filterObj,
   sumOtherCoinCounts,
-  ignoreValueBelow,
-  sortByValue,
 } = utils;
 
 const {
   getAllTokensCount,
 } = ethUtils;
+
+const {
+  getExchangeTokenCounts,
+  fetchers: {
+    fetchBinanceContractBalances,
+    fetchFTXContractBalances,
+  },
+} = exchangeUtils;
 
 getAllPriceDiff = async coins => {
   const start = '26-02-2021'
@@ -36,30 +40,24 @@ getAllPriceDiff = async coins => {
   getPriceDiff('dot', start, end)
 };
 
-const getAllBalances = async (extraFetchers) => {
+const getAllBalances = async () => {
   let allCountCounts = {};
+  const pendings = [];
 
   /* ----------- exchange coins ----------- */
-  const pendings = Object.entries(keys).map(async ([name, key]) => {
-    const exchange = new ccxt[name](key);
+  extraFetchers = {
+    binance: fetchBinanceContractBalances,
+    ftx: fetchFTXContractBalances,
+  }
 
-    const rawCounts = await exchange.fetchBalance();
+  const {
+    all: exchangeTokenCounts,
+  } = await getExchangeTokenCounts(keys, extraFetchers);
 
-    let coinCounts = filterObj(
-      rawCounts.total,
-      ignoreValueBelow(0),
-    );
-
-    const fetcher = extraFetchers[name];   // extra functions to calculate future balances
-    if (fetcher) {
-      const extraCoinCount = await fetcher(exchange);
-      coinCounts = combineCoinCounts(coinCounts, extraCoinCount)
-    }
-
-    await getCoinValues(name, coinCounts);
-    allCountCounts = combineCoinCounts(allCountCounts, coinCounts);
-  });
-
+  pendings.push(
+    await getCoinValues('exchange tokens', exchangeTokenCounts)
+  );
+  allCountCounts = combineCoinCounts(allCountCounts, exchangeTokenCounts);
 
   /* ----------- other coins ----------- */
   const otherCoinCounts = sumOtherCoinCounts(otherCoins);
@@ -80,67 +78,12 @@ const getAllBalances = async (extraFetchers) => {
   await getCoinValues('all coins', allCountCounts);
 };
 
-const fetchBinanceContractBalances = async binance => {
-  const res = await binance.fetchBalance({ type: 'future' });
 
-  const curPositions = res.info.positions.filter(x => x.positionAmt > 0);
-  const coinCount = res.total;      // total balances in future account
-
-  curPositions.forEach(p => {
-    const {
-      symbol,
-      positionAmt: _count,
-      notional: value,
-    } = p;
-    const coinName = symbol.replace('USDT', '');
-    const count = parseInt(_count);
-
-    coinCount[coinName] = coinCount[coinName]
-      ? coinCount[coinName] + count
-      : count;
-    coinCount['USDT'] -= value;
-  });
-
-  return filterObj(
-    coinCount,
-    ([name, count]) => count !== 0,
-  );
-};
-
-const fetchFTXContractBalances = async ftx => {
-  const res = await ftx.fetchPositions();
-  const curPositions = res.filter(x => x.size > 0);
-
-  const coinCount = { USDT: 0 };
-  curPositions.forEach(p => {
-    const {
-      future,
-      size: _count,
-      cost: value,
-    } = p;
-    const coinName = future.split('-')[0];
-    const count = parseInt(_count);
-
-    coinCount[coinName] = coinCount[coinName]
-      ? coinCount[coinName] + count
-      : count;
-    coinCount['USDT'] -= value;
-  });
-
-  return filterObj(
-    coinCount,
-    ([name, count]) => count !== 0,
-  );
-}
 
 const main = async () => {
   // getAllPriceDiff(['btc', 'eth', 'ltc']);
 
-  extraFetchers = {
-    binance: fetchBinanceContractBalances,
-    ftx: fetchFTXContractBalances,
-  }
-  getAllBalances(extraFetchers);
+  getAllBalances();
 };
 
 main();
