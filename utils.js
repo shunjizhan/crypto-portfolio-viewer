@@ -17,14 +17,56 @@ const combineCoinCounts = (x, y) => {
   return res;
 };
 
-const calcCoinValues = (coinCounts, prices, ignoreAbsBelow = 100) => {
-  const res = {};
-  Object.entries(coinCounts).forEach(([name, count]) => {
-    const price = prices[sanitizeCoinName(name)];
-    res[name] = parseInt(count * price);
+const getTotalTokenValues = tokens => {
+  const res = {
+    count: 0,
+    USD: 0,
+    BTC: 0,
+  }
+
+  Object.values(tokens).forEach(({ BTC, USD }) => {
+    res.BTC += BTC;
+    res.USD += USD;
   });
 
-  return filterObj(res, ignoreAbsValueBelow(ignoreAbsBelow));
+  return res;
+};
+
+/**
+@param {*} coinCounts 
+@param {*} prices 
+@param {*} ignoreAbsBelow 
+@returns an object containing 'token counts', 'USD values', and 'BTC values' for each token
+{
+  BTC: {
+    count: 1.5,
+    USD: 80000,
+    BTC: 1.5,
+  }, 
+  ETH: {
+    count: 100,
+    USD: 160000,
+    BTC: 3,
+  },
+  ...
+}
+*/
+const calcCoinValues = (coinCounts, prices, ignoreAbsBelow = 100) => {
+  let res = {};
+  Object.entries(coinCounts).forEach(([name, count]) => {
+    const tokenData = { count };
+    const price = prices[sanitizeCoinName(name)];
+    const value = parseInt(count * price);
+
+    if (Math.abs(value) >= ignoreAbsBelow) {
+      tokenData['USD'] = parseInt(count * price);
+      res[name] = tokenData;
+    }
+  });
+
+  res.TOTAL = getTotalTokenValues(res);
+
+  return res;
 };
 
 const combineFiat = coinCounts => {
@@ -66,7 +108,7 @@ const getCoinValues = async (name, _coinCounts, sort = sortByValue, transform = 
 };
 
 const sortByValue = values => Object.entries(values).sort(
-  ([_, val1], [__, val2]) => val2 - val1
+  ([_1, { USD: val1 }], [_2, { USD: val2 }]) => val2 - val1
 );
 
 const sanitizeCoinName = c => c.toLowerCase();      // TODO: duplicate

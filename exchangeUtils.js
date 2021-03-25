@@ -62,6 +62,7 @@ const fetchFTXContractBalances = async ftx => {
   );
 }
 
+// TODO: can't get LIT value...
 const getExchangeTokenCounts = async (keys, extraFetchers) => {
   const res = {};
   let allTokenCounts = {};
@@ -81,6 +82,8 @@ const getExchangeTokenCounts = async (keys, extraFetchers) => {
       const extraCoinCount = await fetcher(exchange);
       coinCounts = combineCoinCounts(coinCounts, extraCoinCount)
     }
+
+    await getCoinValues(exchangeName, coinCounts);
 
     allTokenCounts = combineCoinCounts(allTokenCounts, coinCounts);
     res[exchangeName] = coinCounts;
