@@ -1,21 +1,25 @@
 
 const utils = require('./utils');
+const portfolioUtils = require('./portfolioUtils');
 const ethUtils = require('./ethUtils');
 const exchangeUtils = require('./exchangeUtils');
 const data = require('./data');
 
 const {
   keys,
-  otherCoins,
+  othertokens,
   addresses,
 } = data;
 
 const {
-  combineCoinCounts,
-  sanitizeCoinName,
-  getCoinValues,
-  sumOtherCoinCounts,
+  sanitizetokenName,
 } = utils;
+
+const {
+  combinetokenCounts,
+  getTokenValues,
+  sumOthertokenCounts,
+} = portfolioUtils;
 
 const {
   getAllTokensCount,
@@ -29,22 +33,22 @@ const {
   },
 } = exchangeUtils;
 
-getAllPriceDiff = async coins => {
-  const start = '26-02-2021'
-  const end = '20-03-2021'
-  await Promise.all(coins.map(s => getPriceDiff(s, start, end)));
+// getAllPriceDiff = async tokens => {
+//   const start = '26-02-2021'
+//   const end = '20-03-2021'
+//   await Promise.all(tokens.map(s => getPriceDiff(s, start, end)));
 
-  console.log(`平均: +${tolDiff / tolCount}%`);
-  getPriceDiff('btc', start, end)
-  getPriceDiff('eth', start, end)
-  getPriceDiff('dot', start, end)
-};
+//   console.log(`平均: +${tolDiff / tolCount}%`);
+//   getPriceDiff('btc', start, end)
+//   getPriceDiff('eth', start, end)
+//   getPriceDiff('dot', start, end)
+// };
 
 const getAllBalances = async () => {
   let allCountCounts = {};
   const pendings = [];
 
-  /* ----------- exchange coins ----------- */
+  /* ----------- exchange tokens ----------- */
   extraFetchers = {
     binance: fetchBinanceContractBalances,
     ftx: fetchFTXContractBalances,
@@ -55,27 +59,27 @@ const getAllBalances = async () => {
   } = await getExchangeTokenCounts(keys, extraFetchers);
 
   pendings.push(
-    await getCoinValues('exchange tokens', exchangeTokenCounts)
+    await getTokenValues('exchange tokens', exchangeTokenCounts)
   );
-  allCountCounts = combineCoinCounts(allCountCounts, exchangeTokenCounts);
+  allCountCounts = combinetokenCounts(allCountCounts, exchangeTokenCounts);
 
-  /* ----------- other coins ----------- */
-  const otherCoinCounts = sumOtherCoinCounts(otherCoins);
+  /* ----------- other tokens ----------- */
+  const othertokenCounts = sumOthertokenCounts(othertokens);
   pendings.push(
-    await getCoinValues('other coins', otherCoinCounts)
+    await getTokenValues('other tokens', othertokenCounts)
   );
-  allCountCounts = combineCoinCounts(allCountCounts, otherCoinCounts);
+  allCountCounts = combinetokenCounts(allCountCounts, othertokenCounts);
     
-  /* ----------- eth coins ----------- */
-  const ethCoinCounts = await getAllTokensCount(addresses);
+  /* ----------- eth tokens ----------- */
+  const ethtokenCounts = await getAllTokensCount(addresses);
   pendings.push(
-    await getCoinValues('ETH coins', ethCoinCounts)
+    await getTokenValues('ETH tokens', ethtokenCounts)
   );
-  allCountCounts = combineCoinCounts(allCountCounts, ethCoinCounts);
+  allCountCounts = combinetokenCounts(allCountCounts, ethtokenCounts);
 
-  /* ----------- all coins ----------- */
+  /* ----------- all tokens ----------- */
   await Promise.all(pendings);
-  await getCoinValues('all coins', allCountCounts);
+  await getTokenValues('all tokens', allCountCounts);
 };
 
 

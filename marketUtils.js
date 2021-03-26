@@ -1,11 +1,16 @@
 const { memoize } = require('lodash');
-const CoinGecko = require('coingecko-api');
-const CoinGeckoClient = new CoinGecko();
+const coingecko = require('coingecko-api');
 
-const sanitizeCoinName = c => c.toLowerCase();      // TODO: duplicate
+const utils = require('./utils');
+
+const {
+  sanitizetokenName,
+} = utils;
+
+const coingeckoClient = new coingecko();
 
 const _getSymbol2Id = async () => {
-  const data = await CoinGeckoClient.coins.list();
+  const data = await coingeckoClient.coins.list();
   return data.data.reduce((memo, cur) => {
     const { id, symbol, name } = cur;
     memo[symbol] = id;
@@ -15,12 +20,12 @@ const _getSymbol2Id = async () => {
 };
 const getSymbol2Id = memoize(_getSymbol2Id);
 
-const getPrices = async (params = {}) => {
+const _getPrices = async (params = {}) => {
   const {
     vs_currency = 'usd',
     ids = '',
   } = params;
-  let data = await CoinGeckoClient.coins.markets(params);
+  let data = await coingeckoClient.coins.markets(params);
 
   return data.data.reduce((memo, cur) => {
     const { id, symbol, name, current_price: price } = cur;
@@ -30,13 +35,13 @@ const getPrices = async (params = {}) => {
   }, {});
 };
 
-const getAllPrices = async coins => {
+const getPrices = async symbols => {
   symbol2Id = await getSymbol2Id();
   const ids = [];
   const notSupported = {};
 
-  coins.forEach(c => {
-    const id = symbol2Id[sanitizeCoinName(c)];
+  symbols.forEach(c => {
+    const id = symbol2Id[sanitizetokenName(c)];
     if (id) {
       ids.push(id);
     } else {
@@ -45,46 +50,53 @@ const getAllPrices = async coins => {
     }
   });
 
-  const prices = await getPrices({ ids: ids.join(',') });
+  const prices = await _getPrices({ ids: ids.join(',') });
   return {
     ...prices,
     ...notSupported,
   };
 };
 
-let tolCount = 0;
-let tolDiff = 0;
-const getPriceDiff = async (coin, start, end) => {
-  symbol2Id = symbol2Id || await getSymbol2Id();
-  let symbol = symbol2Id[sanitizeCoinName(coin)];
-  coin === 'LIT' && (symbol = 'litentry')
+const _getBTCPrice = async () => {
+  const res = await getPrices(['BTC']);
+  return res.btc;
+}
+const getBTCPrice = memoize(_getBTCPrice);
 
-  try {
-    const oldData = await CoinGeckoClient.coins.fetchHistory(symbol, {
-      date: start,
-    });
+// let tolCount = 0;
+// let tolDiff = 0;
+// const getPriceDiff = async (token, start, end) => {
+//   symbol2Id = symbol2Id || await getSymbol2Id();
+//   let symbol = symbol2Id[sanitizetokenName(token)];
+//   token === 'LIT' && (symbol = 'litentry')
 
-    const curData = await CoinGeckoClient.coins.fetchHistory(symbol, {
-      date: end,
-    });
+//   try {
+//     const oldData = await coingeckoClient.coins.fetchHistory(symbol, {
+//       date: start,
+//     });
 
-    const oldPrice = oldData.data.market_data.current_price.usd;
-    const curPrice = curData.data.market_data.current_price.usd;
+//     const curData = await coingeckoClient.coins.fetchHistory(symbol, {
+//       date: end,
+//     });
 
-    const diff = parseInt((curPrice - oldPrice) * 1.0 / oldPrice * 100);
+//     const oldPrice = oldData.data.market_data.current_price.usd;
+//     const curPrice = curData.data.market_data.current_price.usd;
 
-    const sign = diff > 0 ? '+' : '';
-    console.log(`${coin}: ${sign}${diff}%`);
+//     const diff = parseInt((curPrice - oldPrice) * 1.0 / oldPrice * 100);
 
-    tolCount += 1;
-    tolDiff += diff;
-  } catch (err) {
-    console.log('!!!!!!!!!!!!!!!!!!!!!', coin);
-    console.log(err);
-  }
-};
+//     const sign = diff > 0 ? '+' : '';
+//     console.log(`${token}: ${sign}${diff}%`);
+
+//     tolCount += 1;
+//     tolDiff += diff;
+//   } catch (err) {
+//     console.log('!!!!!!!!!!!!!!!!!!!!!', token);
+//     console.log(err);
+//   }
+// };
 
 module.exports = {
-  getAllPrices,
-  getPriceDiff,   // not in use yet
+  getPrices,
+  getBTCPrice,
+  // getPriceDiff,
 }

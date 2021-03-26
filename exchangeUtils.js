@@ -1,19 +1,24 @@
 const ccxt = require('ccxt');
+
 const utils = require('./utils');
+const portfolioUtils = require('./portfolioUtils');
 
 const {
   filterObj,
-  getCoinValues,
   ignoreValueBelow,
   sortByValue,
-  combineCoinCounts,
 } = utils;
+
+const {
+  getTokenValues,
+  combinetokenCounts,
+} = portfolioUtils;
 
 const fetchBinanceContractBalances = async binance => {
   const res = await binance.fetchBalance({ type: 'future' });
 
   const curPositions = res.info.positions.filter(x => x.positionAmt > 0);
-  const coinCount = res.total;      // total balances in future account
+  const tokenCount = res.total;      // total balances in future account
 
   curPositions.forEach(p => {
     const {
@@ -21,17 +26,17 @@ const fetchBinanceContractBalances = async binance => {
       positionAmt: _count,
       notional: value,
     } = p;
-    const coinName = symbol.replace('USDT', '');
+    const tokenName = symbol.replace('USDT', '');
     const count = parseInt(_count);
 
-    coinCount[coinName] = coinCount[coinName]
-      ? coinCount[coinName] + count
+    tokenCount[tokenName] = tokenCount[tokenName]
+      ? tokenCount[tokenName] + count
       : count;
-    coinCount['USDT'] -= value;
+    tokenCount['USDT'] -= value;
   });
 
   return filterObj(
-    coinCount,
+    tokenCount,
     ([name, count]) => count !== 0,
   );
 };
@@ -40,24 +45,24 @@ const fetchFTXContractBalances = async ftx => {
   const res = await ftx.fetchPositions();
   const curPositions = res.filter(x => x.size > 0);
 
-  const coinCount = { USDT: 0 };
+  const tokenCount = { USDT: 0 };
   curPositions.forEach(p => {
     const {
       future,
       size: _count,
       cost: value,
     } = p;
-    const coinName = future.split('-')[0];
+    const tokenName = future.split('-')[0];
     const count = parseInt(_count);
 
-    coinCount[coinName] = coinCount[coinName]
-      ? coinCount[coinName] + count
+    tokenCount[tokenName] = tokenCount[tokenName]
+      ? tokenCount[tokenName] + count
       : count;
-    coinCount['USDT'] -= value;
+    tokenCount['USDT'] -= value;
   });
 
   return filterObj(
-    coinCount,
+    tokenCount,
     ([name, count]) => count !== 0,
   );
 }
@@ -72,21 +77,21 @@ const getExchangeTokenCounts = async (keys, extraFetchers) => {
 
     const rawCounts = await exchange.fetchBalance();
 
-    let coinCounts = filterObj(
+    let tokenCounts = filterObj(
       rawCounts.total,
       ignoreValueBelow(0),
     );
 
     const fetcher = extraFetchers[exchangeName];   // extra functions to calculate future/margin balances
     if (fetcher) {
-      const extraCoinCount = await fetcher(exchange);
-      coinCounts = combineCoinCounts(coinCounts, extraCoinCount)
+      const extratokenCount = await fetcher(exchange);
+      tokenCounts = combinetokenCounts(tokenCounts, extratokenCount)
     }
 
-    await getCoinValues(exchangeName, coinCounts);
+    await getTokenValues(exchangeName, tokenCounts);
 
-    allTokenCounts = combineCoinCounts(allTokenCounts, coinCounts);
-    res[exchangeName] = coinCounts;
+    allTokenCounts = combinetokenCounts(allTokenCounts, tokenCounts);
+    res[exchangeName] = tokenCounts;
   });
 
   await Promise.all(pendings);

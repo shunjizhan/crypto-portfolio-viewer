@@ -1,10 +1,10 @@
 const axios = require('axios');
 
-const utils = require('./utils');
+const portfolioUtils = require('./portfolioUtils');
 
 const {
-  combineCoinCounts,
-} = utils;
+  combinetokenCounts,
+} = portfolioUtils;
 
 const BASE_URL = "https://api.ethplorer.io";
 
@@ -16,7 +16,7 @@ const getTokens = async address => {
     tokens,
   } = response.data;
 
-  const coinCounts = { ETH: balance };
+  const tokenCounts = { ETH: balance };
   tokens.forEach(t => {
     const {
       tokenInfo: {
@@ -27,11 +27,11 @@ const getTokens = async address => {
     } = t;
 
     if (symbol) {
-      coinCounts[symbol] = balance / (10 ** decimals);
+      tokenCounts[symbol] = balance / (10 ** decimals);
     }
   });
 
-  return coinCounts;
+  return tokenCounts;
 };
 
 const getAllTokensCount = async addresses => {
@@ -39,7 +39,7 @@ const getAllTokensCount = async addresses => {
   await Promise.all(
     addresses.map(async addr => {
       const tokens = await getTokens(addr);
-      tokenCounts = combineCoinCounts(tokenCounts, tokens);
+      tokenCounts = combinetokenCounts(tokenCounts, tokens);
     })
   );
 
