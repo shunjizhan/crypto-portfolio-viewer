@@ -8,11 +8,15 @@ const filterObj = (obj, func) => Object.fromEntries(
   Object.entries(obj).filter(func)
 );
 const ignoreValueBelow = x => (([key, value]) => value > x);
-const ignoreAbsValueBelow = x => (([key, value]) => Math.abs(value) > x);
+
+const toFixedDecimal = decimal => x => parseFloat(parseFloat(x).toFixed(decimal));
+const toFixedDecimal2 = toFixedDecimal(2);
 
 module.exports = {
   sanitizetokenName,
   filterObj,
   ignoreValueBelow,
   sortByValue,
+  toFixedDecimal,
+  toFixedDecimal2,
 }

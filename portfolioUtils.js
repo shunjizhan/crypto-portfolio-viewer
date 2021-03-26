@@ -6,6 +6,7 @@ const marketUtils = require('./marketUtils');
 const {
   sanitizetokenName,
   sortByValue,
+  toFixedDecimal2,
 } = utils;
 
 const {
@@ -37,6 +38,8 @@ const getTotalTokenValues = tokens => {
     res.BTC += BTC;
     res.USD += USD;
   });
+
+  res.BTC = toFixedDecimal2(res.BTC);
 
   return res;
 };
@@ -70,7 +73,7 @@ const calcTokenValues = (tokenCounts, prices, BTCPrice, ignoreAbsBelow = 100) =>
 
     if (Math.abs(value) >= ignoreAbsBelow) {
       tokenData['USD'] = parseInt(count * price);
-      tokenData['BTC'] = parseFloat(parseFloat(value_BTC).toFixed(2));
+      tokenData['BTC'] = toFixedDecimal2(value_BTC);
       res[name] = tokenData;
     }
   });
@@ -93,9 +96,11 @@ const combineFiat = (tokenCounts, fiatName = 'USDT') => {
     if (fiats.has(token)) {
       res[fiatName] += count;
     } else {
-      res[token] = count;
+      res[token] = toFixedDecimal2(count);
     }
   });
+
+  res[fiatName] = toFixedDecimal2(res[fiatName]);
 
   return res;
 };
