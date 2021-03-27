@@ -7,6 +7,9 @@
   "author": "y",
   "license": "y",
   "private": false,
+  "scripts": {
+    "get": "node run"
+  },
   "dependencies": {
     "axios": "^0.21.1",
     "ccxt": "^1.43.76",

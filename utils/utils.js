@@ -14,7 +14,7 @@ const ignoreValueBelow = x => (([key, value]) => value > x);
 const toFixedDecimal = decimal => x => parseFloat(parseFloat(x).toFixed(decimal));
 const toFixedDecimal2 = toFixedDecimal(2);
 
-const printValuesNicely = res => {
+const printPortfolioNicely = res => {
   const msgLength = 68;
   Object.entries(res).forEach(([name, values]) => {
     console.log('-'.repeat(msgLength));
@@ -32,5 +32,5 @@ module.exports = {
   sortByValue,
   toFixedDecimal,
   toFixedDecimal2,
-  printValuesNicely,
+  printPortfolioNicely,
 }

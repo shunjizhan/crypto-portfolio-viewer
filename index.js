@@ -1,19 +1,12 @@
 
-const utils = require('./utils');
-const portfolioUtils = require('./portfolioUtils');
-const ethUtils = require('./ethUtils');
-const exchangeUtils = require('./exchangeUtils');
-const data = require('./data');
-
-const {
-  keys,
-  othertokens,
-  addresses,
-} = data;
+const utils = require('./utils/utils');
+const portfolioUtils = require('./utils/portfolioUtils');
+const ethUtils = require('./utils/ethUtils');
+const exchangeUtils = require('./utils/exchangeUtils');
 
 const {
   sanitizetokenName,
-  printValuesNicely,
+  printPortfolioNicely,
 } = utils;
 
 const {
@@ -45,7 +38,12 @@ const {
 //   getPriceDiff('dot', start, end)
 // };
 
-const getAllBalances = async ({ combineExchanges = true } = {}) => {
+const getMyPortfolio = async ({
+  keys = {},
+  othertokens = {},
+  addresses = [],
+  combineExchanges = true,
+} = {}) => {
   extraFetchers = {
     binance: fetchBinanceContractBalances,
     ftx: fetchFTXContractBalances,
@@ -90,13 +88,7 @@ const getAllBalances = async ({ combineExchanges = true } = {}) => {
   return res;
 };
 
-
-
-const main = async () => {
-  // getAllPriceDiff(['btc', 'eth', 'ltc']);
-
-  const allTokenValues = await getAllBalances({ combineExchanges: false });
-  printValuesNicely(allTokenValues);
+module.exports = {
+  getMyPortfolio,
+  printPortfolioNicely,
 };
-
-main();
