@@ -11,13 +11,13 @@ const {
 } = data;
 
 (run = async () => {
-  // getAllPriceDiff(['btc', 'eth', 'ltc']);
+  const combineExchanges = false;
 
   const allTokenValues = await getMyPortfolio({
     keys,
-    othertokens,
     addresses,
-    combineExchanges: false,
+    othertokens,
+    combineExchanges,
   });
 
   printPortfolioNicely(allTokenValues);

@@ -15,7 +15,7 @@ const toFixedDecimal = decimal => x => parseFloat(parseFloat(x).toFixed(decimal)
 const toFixedDecimal2 = toFixedDecimal(2);
 
 const printPortfolioNicely = res => {
-  const msgLength = 68;
+  const msgLength = 58;
   Object.entries(res).forEach(([name, values]) => {
     console.log('-'.repeat(msgLength));
     console.log(`₿ ${pad(`${name} tokens `, msgLength - 4)} ₿`);
