@@ -13,16 +13,17 @@ const {
 
 const {
   sanitizetokenName,
+  printValuesNicely,
 } = utils;
 
 const {
-  combinetokenCounts,
+  combineTokenCounts,
   getTokenValues,
-  sumOthertokenCounts,
+  sumOtherTokenCounts,
 } = portfolioUtils;
 
 const {
-  getAllTokensCount,
+  getAllTokenCounts,
 } = ethUtils;
 
 const {
@@ -44,11 +45,7 @@ const {
 //   getPriceDiff('dot', start, end)
 // };
 
-const getAllBalances = async () => {
-  let allCountCounts = {};
-  const pendings = [];
-
-  /* ----------- exchange tokens ----------- */
+const getAllBalances = async ({ combineExchanges = true } = {}) => {
   extraFetchers = {
     binance: fetchBinanceContractBalances,
     ftx: fetchFTXContractBalances,
@@ -56,30 +53,41 @@ const getAllBalances = async () => {
 
   const {
     all: exchangeTokenCounts,
+    ...eachExchanges                         // interestingly, couldn't put an extra ',' here, otherwise rest element won't be the last element anymore
   } = await getExchangeTokenCounts(keys, extraFetchers);
 
-  pendings.push(
-    await getTokenValues('exchange tokens', exchangeTokenCounts)
-  );
-  allCountCounts = combinetokenCounts(allCountCounts, exchangeTokenCounts);
+  const otherTokenCounts = sumOtherTokenCounts(othertokens);
+  const ethTokenCounts = await getAllTokenCounts(addresses);
 
-  /* ----------- other tokens ----------- */
-  const othertokenCounts = sumOthertokenCounts(othertokens);
-  pendings.push(
-    await getTokenValues('other tokens', othertokenCounts)
+  const allTokenCounts = combineTokenCounts(
+    exchangeTokenCounts,
+    otherTokenCounts,
+    ethTokenCounts,
   );
-  allCountCounts = combinetokenCounts(allCountCounts, othertokenCounts);
-    
-  /* ----------- eth tokens ----------- */
-  const ethtokenCounts = await getAllTokensCount(addresses);
-  pendings.push(
-    await getTokenValues('ETH tokens', ethtokenCounts)
-  );
-  allCountCounts = combinetokenCounts(allCountCounts, ethtokenCounts);
 
-  /* ----------- all tokens ----------- */
-  await Promise.all(pendings);
-  await getTokenValues('all tokens', allCountCounts);
+  const exchangeValues = combineExchanges
+    ? [['exchange', exchangeTokenCounts]]
+    : Object.entries(eachExchanges);
+
+  let allTokenValues = [
+    ...exchangeValues,
+    ['eth', ethTokenCounts],
+    ['other', otherTokenCounts],
+    ['all', allTokenCounts],
+  ].map(async ([name, counts]) => {
+    const values = await getTokenValues(counts);
+    return [name, values];
+  });
+  
+  await Promise.all(allTokenValues);
+
+  const res = {};
+  allTokenValues.forEach(async p => {
+    const [name, values] = await p;
+    res[name] = values;
+  });
+  
+  return res;
 };
 
 
@@ -87,7 +95,8 @@ const getAllBalances = async () => {
 const main = async () => {
   // getAllPriceDiff(['btc', 'eth', 'ltc']);
 
-  getAllBalances();
+  const allTokenValues = await getAllBalances({ combineExchanges: false });
+  printValuesNicely(allTokenValues);
 };
 
 main();

@@ -11,7 +11,7 @@ const {
 
 const {
   getTokenValues,
-  combinetokenCounts,
+  combineTokenCounts,
 } = portfolioUtils;
 
 const fetchBinanceContractBalances = async binance => {
@@ -85,12 +85,10 @@ const getExchangeTokenCounts = async (keys, extraFetchers) => {
     const fetcher = extraFetchers[exchangeName];   // extra functions to calculate future/margin balances
     if (fetcher) {
       const extratokenCount = await fetcher(exchange);
-      tokenCounts = combinetokenCounts(tokenCounts, extratokenCount)
+      tokenCounts = combineTokenCounts(tokenCounts, extratokenCount)
     }
 
-    await getTokenValues(exchangeName, tokenCounts);
-
-    allTokenCounts = combinetokenCounts(allTokenCounts, tokenCounts);
+    allTokenCounts = combineTokenCounts(allTokenCounts, tokenCounts);
     res[exchangeName] = tokenCounts;
   });
 

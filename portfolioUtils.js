@@ -14,7 +14,7 @@ const {
   getBTCPrice,
 } = marketUtils;
 
-const combinetokenCounts = (x, y) => {
+const _combineTokenCounts = (x, y) => {
   const res = { ...x };
   Object.entries(y).forEach(([name, count]) => {
     if (res[name]) {
@@ -26,6 +26,8 @@ const combinetokenCounts = (x, y) => {
 
   return res;
 };
+
+const combineTokenCounts = (...counts) => counts.reduce((memo, cur) => _combineTokenCounts(memo, cur), {});
 
 const getTotalTokenValues = tokens => {
   const res = {
@@ -105,7 +107,7 @@ const combineFiat = (tokenCounts, fiatName = 'USDT') => {
   return res;
 };
 
-const getTokenValues = async (name, _tokenCounts, sort = sortByValue, transform = combineFiat) => {
+const getTokenValues = async (_tokenCounts, sort = sortByValue, transform = combineFiat) => {
   let tokenCounts = _tokenCounts;
   if (typeof transform === 'function') {
     tokenCounts = transform(tokenCounts);
@@ -119,11 +121,10 @@ const getTokenValues = async (name, _tokenCounts, sort = sortByValue, transform 
     tokenValues = sort(tokenValues);
   }
 
-  console.log(`${name} balance:`, tokenValues);
   return tokenValues;
 };
 
-const sumOthertokenCounts = tokens => {
+const sumOtherTokenCounts = tokens => {
   const res = {};
   Object.entries(tokens).forEach(([name, counts]) => {
     res[name] = sum(counts)
@@ -133,7 +134,7 @@ const sumOthertokenCounts = tokens => {
 }
 
 module.exports = {
-  combinetokenCounts,
+  combineTokenCounts,
   getTokenValues,
-  sumOthertokenCounts,
+  sumOtherTokenCounts,
 }

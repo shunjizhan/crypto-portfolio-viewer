@@ -3,7 +3,7 @@ const axios = require('axios');
 const portfolioUtils = require('./portfolioUtils');
 
 const {
-  combinetokenCounts,
+  combineTokenCounts,
 } = portfolioUtils;
 
 const BASE_URL = "https://api.ethplorer.io";
@@ -34,12 +34,12 @@ const getTokens = async address => {
   return tokenCounts;
 };
 
-const getAllTokensCount = async addresses => {
+const getAllTokenCounts = async addresses => {
   let tokenCounts = {};
   await Promise.all(
     addresses.map(async addr => {
       const tokens = await getTokens(addr);
-      tokenCounts = combinetokenCounts(tokenCounts, tokens);
+      tokenCounts = combineTokenCounts(tokenCounts, tokens);
     })
   );
 
@@ -47,5 +47,5 @@ const getAllTokensCount = async addresses => {
 };
 
 module.exports = {
-  getAllTokensCount,
+  getAllTokenCounts,
 };
