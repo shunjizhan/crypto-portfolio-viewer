@@ -4,9 +4,11 @@ View your aggregated cryptocurrency portfolio automagically, no matter where the
 - ETH wallets
 - anywhere else, no problem!
 
+# NOTE
+stil work in progress!! will be on npm soon!!
 ## Install
-`yarn add crypto-portfolio-viewer`
-or
+`yarn add crypto-portfolio-viewer`  
+or  
 `npm install crypto-portfolio-viewer`
 
 ## Basic Usage
