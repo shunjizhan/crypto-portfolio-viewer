@@ -2,8 +2,8 @@ const {
   getMyPortfolio,
   printPortfolioNicely,
   fetchers,
-} = require('./index');
-const data = require('./data');
+} = require('../src/index');
+const data = require('./exampleData');
 
 const {
   keys,
@@ -16,7 +16,7 @@ const {
   fetchFTXContractBalances,
 } = fetchers;
 
-(run = async () => {
+(async () => {
   const combineExchanges = false;
   const extraFetchers = {
     binance: fetchBinanceContractBalances,
