@@ -21,10 +21,7 @@ const {
 
 const {
   getExchangeTokenCounts,
-  fetchers: {
-    fetchBinanceContractBalances,
-    fetchFTXContractBalances,
-  },
+  fetchers,
 } = exchangeUtils;
 
 // getAllPriceDiff = async tokens => {
@@ -42,13 +39,9 @@ const getMyPortfolio = async ({
   keys = {},
   othertokens = {},
   addresses = [],
-  combineExchanges = true,
+  combineExchanges = false,
+  extraFetchers = {},
 } = {}) => {
-  extraFetchers = {
-    binance: fetchBinanceContractBalances,
-    ftx: fetchFTXContractBalances,
-  }
-
   const {
     all: exchangeTokenCounts,
     ...eachExchanges                         // interestingly, couldn't put an extra ',' here, otherwise rest element won't be the last element anymore
@@ -91,4 +84,5 @@ const getMyPortfolio = async ({
 module.exports = {
   getMyPortfolio,
   printPortfolioNicely,
+  fetchers,
 };

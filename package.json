@@ -1,12 +1,28 @@
 {
-  "name": "y",
-  "version": "y",
-  "description": "view your crypto portfolio in a nice way",
-  "main": "y",
-  "repository": "y",
-  "author": "y",
-  "license": "y",
+  "name": "crypto-portfolio-viewer",
+  "version": "1.0.0",
+  "description": "view your aggregated cryptocurrency portfolio in a nice way",
+  "main": "./index.js",
+  "author": "Shunji Zhan <shunhahaha@live.com>",
+  "repository": "git@github.com/shunjizhan/crypto-portfolio-viwer.git",
+  "homepage": "https://github.com/shunjizhan/crypto-portfolio-viwer",
+  "bugs": {
+    "url": "https://github.com/shunjizhan/crypto-portfolio-viwer/issues"
+  },
+  "license": "MIT",
   "private": false,
+  "keywords": [
+    "npm",
+    "npm-package",
+    "npm-module",
+    "crypto",
+    "cryptocurrency",
+    "bitcoin",
+    "etherium",
+    "portfolio",
+    "ccxt",
+    "coingecko"
+  ],
   "scripts": {
     "get": "node run"
   },
