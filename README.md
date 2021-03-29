@@ -4,13 +4,12 @@ View your aggregated cryptocurrency portfolio automagically, no matter where the
 - ETH wallets
 - anywhere else, no problem!
 
-# NOTE
-stil work in progress!! will be on npm soon!!
+### NOTE: stil work in progress!! will be on npm soon!!
 ## Install
 `yarn add crypto-portfolio-viewer`  
 or  
 `npm install crypto-portfolio-viewer`
-
+___
 ## Basic Usage
 ### import 
 ```ts
@@ -20,7 +19,7 @@ const {
 } = require('./crypto-portfolio-viewer');
 ```
 
-### view exchange assets
+### exchange assets
 we can easily view all exchanges assets using exchange api keys. Exchange namings please refer to [ccxt](https://github.com/ccxt/ccxt#supported-cryptocurrency-exchange-markets).
 ```ts
 const keys = {                               
@@ -40,7 +39,7 @@ const keys = {
   printPortfolioNicely(portfolio);
 })();
 ```
-### view ETH & ERC20 assets
+### ETH & ERC20 assets
 we can easily view all ETH and ERC20 tokens using ETH addresses.
 ```ts
 const addresses = [                         
@@ -55,7 +54,7 @@ const addresses = [
 })();
 ```
 [](#other-assets)
-### view any other assets
+### any other assets
 we can easily view any other assets by hard coding their counts. 
 ```ts
 const othertokens = {                        
@@ -76,7 +75,7 @@ const othertokens = {
 })();
 ```
 
-### view ALL assets
+### ALL assets
 > Being able to aggregate all assets is the soul of a portfolio viewer. --Aristotélēs
 >
 we can easily view **all of our assets across many different places**, by combining the usages above.
@@ -183,7 +182,7 @@ const othertokens = {
   [ 'USDT', { count: 1500, USD_value: 1500, BTC_value: 0.15 } ],
 ]
 ```
-
+___
 ## Advanced Usage
 ### custom printer
 > Viewing result nicely is the soul of a portfolio viewer. --Shakespeare
@@ -236,35 +235,35 @@ to simplify our portfolio, we can combine all exchange tokens as a whole
 all exchange tokens combined print here ......
 ```
 
-## contract/future accounts
+### contract/future accounts
 For contract/future/margin assets in exchanges, since the `ccxt` library that we rely on doesn't yet provide unified interfaces for these accounts, there is no automatted way to catch them into the exchange result. 
 
 But don't worry, we have 2 different ways to inlcude them into our portfolio:
 
-### 1) hard code
+#### 1) hard code
 We can hard code these assets in `othertokens`. (from [example](#other-assets) above) 
 This is pretty convenient, but we will have to manually update `othertokens` whenever assets change in future accounts.
 
-### 2) custom `fetcher`
+#### 2) custom `fetcher`
 We can also provide a custom `fetcher` for each exchange.
 This is more flexible and powerful. One huge advantages is being able to include contract positions as assets, which enables us to more precisely calculate portfolio details (which I personally use A LOT!!). 
 
 For example, if we have `1000 USDT collateral`, as well as a contract position of `BTC long (2000 USDT worth)`, then technically our 'real' portfolio should look like
-```json
+```ts
 {
   USDT: { USD_value: -1000, ... },    // 1000 (collateral) - 2000 (borrowed)
   BTC:  { USD_value: 2000, ... },
 }
 ```
 with method 1 (hard code), on the other hand, our 'fake' portfolio looks like
-```json
+```ts
 {
   USDT: { USD_value: 1000, ... },    // 1000 (collateral) 
   BTC:  { USD_value: 0, ... },       // totally ignores contract positions!
 }
 ```
 
-### available fetchers
+#### available fetchers
 There are already 2 fetchers that I personally use, feel free to use them directly. 
 You can also reference them to write your own, or even better, contribute your custom fetchers : )
 ```ts
@@ -294,7 +293,9 @@ const {
 })();
 ```
 
+___
 ## Special Thanks
-Really appreciate all the fantastic works by [ccxt](https://github.com/ccxt/ccxt) and [coingecko-api](https://github.com/miscavage/CoinGecko-API).
+Really appreciate all the fantastic works by [ccxt](https://github.com/ccxt/ccxt) and [coingecko-api](https://github.com/miscavage/CoinGecko-API), which provide super useful utilities supporting this library.
+___
 ## UI
 coming soon
