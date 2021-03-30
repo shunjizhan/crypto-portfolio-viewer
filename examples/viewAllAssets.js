@@ -21,7 +21,7 @@ const {
   const extraFetchers = {
     binance: fetchBinanceContractBalances,
     ftx: fetchFTXContractBalances,
-  }
+  };
 
   const portfolio = await getMyPortfolio({
     keys,

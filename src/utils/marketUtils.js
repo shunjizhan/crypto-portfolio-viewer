@@ -25,10 +25,12 @@ const _getPrices = async (params = {}) => {
     vs_currency = 'usd',
     ids = '',
   } = params;
-  let data = await coingeckoClient.coins.markets(params);
+  const data = await coingeckoClient.coins.markets(params);
 
   return data.data.reduce((memo, cur) => {
-    const { id, symbol, name, current_price: price } = cur;
+    const {
+      id, symbol, name, current_price: price,
+    } = cur;
     memo[symbol] = price;
 
     return memo;
@@ -60,7 +62,7 @@ const getPrices = async symbols => {
 const _getBTCPrice = async () => {
   const res = await getPrices(['BTC']);
   return res.btc;
-}
+};
 const getBTCPrice = memoize(_getBTCPrice);
 
 // let tolCount = 0;
@@ -99,4 +101,4 @@ module.exports = {
   getPrices,
   getBTCPrice,
   // getPriceDiff,
-}
+};

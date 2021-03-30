@@ -34,7 +34,7 @@ const getTotalTokenValues = tokens => {
     count: 0,
     USD: 0,
     BTC: 0,
-  }
+  };
 
   Object.values(tokens).forEach(({ BTC, USD }) => {
     res.BTC += BTC;
@@ -47,16 +47,16 @@ const getTotalTokenValues = tokens => {
 };
 
 /**
-@param {*} tokenCounts 
-@param {*} prices 
-@param {*} ignoreAbsBelow 
+@param {*} tokenCounts
+@param {*} prices
+@param {*} ignoreAbsBelow
 @returns an object containing 'token counts', 'USD values', and 'BTC values' for each token
 {
   BTC: {
     count: 1.5,
     USD: 80000,
     BTC: 1.5,
-  }, 
+  },
   ETH: {
     count: 100,
     USD: 160000,
@@ -66,7 +66,7 @@ const getTotalTokenValues = tokens => {
 }
 */
 const calcTokenValues = (tokenCounts, prices, BTCPrice, ignoreAbsBelow = 100) => {
-  let res = {};
+  const res = {};
   Object.entries(tokenCounts).forEach(([name, count]) => {
     const tokenData = { count };
     const price = prices[sanitizetokenName(name)];
@@ -74,8 +74,8 @@ const calcTokenValues = (tokenCounts, prices, BTCPrice, ignoreAbsBelow = 100) =>
     const value_BTC = value / BTCPrice;
 
     if (Math.abs(value) >= ignoreAbsBelow) {
-      tokenData['USD'] = parseInt(count * price);
-      tokenData['BTC'] = toFixedDecimal2(value_BTC);
+      tokenData.USD = parseInt(count * price);
+      tokenData.BTC = toFixedDecimal2(value_BTC);
       res[name] = tokenData;
     }
   });
@@ -127,14 +127,14 @@ const getTokenValues = async (_tokenCounts, sort = sortByValue, transform = comb
 const sumOtherTokenCounts = tokens => {
   const res = {};
   Object.entries(tokens).forEach(([name, counts]) => {
-    res[name] = sum(counts)
+    res[name] = sum(counts);
   });
 
   return res;
-}
+};
 
 module.exports = {
   combineTokenCounts,
   getTokenValues,
   sumOtherTokenCounts,
-}
+};

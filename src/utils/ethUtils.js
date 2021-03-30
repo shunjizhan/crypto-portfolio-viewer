@@ -6,11 +6,11 @@ const {
   combineTokenCounts,
 } = portfolioUtils;
 
-const BASE_URL = "https://api.ethplorer.io";
+const BASE_URL = 'https://api.ethplorer.io';
 
 const getTokens = async address => {
   const requestURL = `${BASE_URL}/getAddressInfo/${address}?apiKey=freekey`;
-  const response = await axios.get(requestURL)
+  const response = await axios.get(requestURL);
   const {
     ETH: { balance },
     tokens,
@@ -40,7 +40,7 @@ const getAllTokenCounts = async addresses => {
     addresses.map(async addr => {
       const tokens = await getTokens(addr);
       tokenCounts = combineTokenCounts(tokenCounts, tokens);
-    })
+    }),
   );
 
   return tokenCounts;

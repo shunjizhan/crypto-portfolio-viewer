@@ -32,7 +32,7 @@ const fetchBinanceContractBalances = async binance => {
     tokenCount[tokenName] = tokenCount[tokenName]
       ? tokenCount[tokenName] + count
       : count;
-    tokenCount['USDT'] -= value;
+    tokenCount.USDT -= value;
   });
 
   return filterObj(
@@ -58,14 +58,14 @@ const fetchFTXContractBalances = async ftx => {
     tokenCount[tokenName] = tokenCount[tokenName]
       ? tokenCount[tokenName] + count
       : count;
-    tokenCount['USDT'] -= value;
+    tokenCount.USDT -= value;
   });
 
   return filterObj(
     tokenCount,
     ([name, count]) => count !== 0,
   );
-}
+};
 
 // TODO: can't get LIT value...
 const getExchangeTokenCounts = async (keys, extraFetchers) => {
@@ -85,7 +85,7 @@ const getExchangeTokenCounts = async (keys, extraFetchers) => {
     const fetcher = extraFetchers[exchangeName];   // extra functions to calculate future/margin balances
     if (fetcher) {
       const extratokenCount = await fetcher(exchange);
-      tokenCounts = combineTokenCounts(tokenCounts, extratokenCount)
+      tokenCounts = combineTokenCounts(tokenCounts, extratokenCount);
     }
 
     allTokenCounts = combineTokenCounts(allTokenCounts, tokenCounts);
@@ -93,7 +93,7 @@ const getExchangeTokenCounts = async (keys, extraFetchers) => {
   });
 
   await Promise.all(pendings);
-  res['all'] = allTokenCounts;
+  res.all = allTokenCounts;
 
   return res;
 };
@@ -103,5 +103,5 @@ module.exports = {
   fetchers: {
     fetchBinanceContractBalances,
     fetchFTXContractBalances,
-  }
+  },
 };

@@ -1,4 +1,3 @@
-
 const utils = require('./utils/utils');
 const portfolioUtils = require('./utils/portfolioUtils');
 const ethUtils = require('./utils/ethUtils');
@@ -60,7 +59,7 @@ const getMyPortfolio = async ({
     ? [['exchange', exchangeTokenCounts]]
     : Object.entries(eachExchanges);
 
-  let allTokenValues = [
+  const allTokenValues = [
     ...exchangeValues,
     ['eth', ethTokenCounts],
     ['other', otherTokenCounts],
@@ -69,7 +68,7 @@ const getMyPortfolio = async ({
     const values = await getTokenValues(counts);
     return [name, values];
   });
-  
+
   await Promise.all(allTokenValues);
 
   const res = {};
@@ -77,7 +76,7 @@ const getMyPortfolio = async ({
     const [name, values] = await p;
     res[name] = values;
   });
-  
+
   return res;
 };
 
