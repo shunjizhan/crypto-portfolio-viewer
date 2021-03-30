@@ -2,11 +2,16 @@ const utils = require('./utils/utils');
 const portfolioUtils = require('./utils/portfolioUtils');
 const ethUtils = require('./utils/ethUtils');
 const exchangeUtils = require('./utils/exchangeUtils');
+const marketUtils = require('./utils/marketUtils');
 
 const {
-  sanitizetokenName,
   printPortfolioNicely,
 } = utils;
+
+const {
+  getPrices,
+  getBTCPrice,
+} = marketUtils;
 
 const {
   combineTokenCounts,
@@ -59,13 +64,16 @@ const getMyPortfolio = async ({
     ? [['exchange', exchangeTokenCounts]]
     : Object.entries(eachExchanges);
 
+  const BTCprice = await getBTCPrice();
+  const tokenPrices = await getPrices(Object.keys(allTokenCounts));
+
   const allTokenValues = [
     ...exchangeValues,
     ['eth', ethTokenCounts],
     ['other', otherTokenCounts],
     ['all', allTokenCounts],
   ].map(async ([name, counts]) => {
-    const values = await getTokenValues(counts);
+    const values = await getTokenValues(counts, tokenPrices, BTCprice);
     return [name, values];
   });
 

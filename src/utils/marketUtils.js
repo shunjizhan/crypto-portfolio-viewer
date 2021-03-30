@@ -38,7 +38,7 @@ const _getPrices = async (params = {}) => {
 };
 
 const getPrices = async symbols => {
-  symbol2Id = await getSymbol2Id();
+  const symbol2Id = await getSymbol2Id();
   const ids = [];
   const notSupported = {};
 
@@ -47,7 +47,7 @@ const getPrices = async symbols => {
     if (id) {
       ids.push(id);
     } else {
-      console.warn(`token '${c}' is not supported... fall back it's price to 0`);
+      console.warn(`ignored token '${c}': can't find it's coingecko id...`);
       notSupported[c] = 0;
     }
   });

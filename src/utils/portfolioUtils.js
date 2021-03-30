@@ -9,11 +9,6 @@ const {
   toFixedDecimal2,
 } = utils;
 
-const {
-  getPrices,
-  getBTCPrice,
-} = marketUtils;
-
 const _combineTokenCounts = (x, y) => {
   const res = { ...x };
   Object.entries(y).forEach(([name, count]) => {
@@ -107,15 +102,13 @@ const combineFiat = (tokenCounts, fiatName = 'USDT') => {
   return res;
 };
 
-const getTokenValues = async (_tokenCounts, sort = sortByValue, transform = combineFiat) => {
+const getTokenValues = async (_tokenCounts, tokenPrices, BTCprice, sort = sortByValue, transform = combineFiat) => {
   let tokenCounts = _tokenCounts;
   if (typeof transform === 'function') {
     tokenCounts = transform(tokenCounts);
   }
 
-  const BTCprice = await getBTCPrice();
-  const prices = await getPrices(Object.keys(tokenCounts));
-  let tokenValues = calcTokenValues(tokenCounts, prices, BTCprice);
+  let tokenValues = calcTokenValues(tokenCounts, tokenPrices, BTCprice);
 
   if (typeof sort === 'function') {
     tokenValues = sort(tokenValues);
