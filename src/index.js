@@ -1,3 +1,4 @@
+const { isEmpty } = require('lodash');
 const utils = require('./utils/utils');
 const portfolioUtils = require('./utils/portfolioUtils');
 const ethUtils = require('./utils/ethUtils');
@@ -41,8 +42,8 @@ const {
 
 const getMyPortfolio = async ({
   keys = {},
-  othertokens = {},
   addresses = [],
+  othertokens = {},
   combineExchanges = false,
   extraFetchers = {},
 } = {}) => {
@@ -60,17 +61,21 @@ const getMyPortfolio = async ({
     ethTokenCounts,
   );
 
-  const exchangeValues = combineExchanges
+  const _exchangeValues = combineExchanges
     ? [['exchange', exchangeTokenCounts]]
     : Object.entries(eachExchanges);
+
+  const exchangeValues = isEmpty(keys) ? [] : _exchangeValues;
+  const ethValues = isEmpty(addresses) ? [] : [['eth', ethTokenCounts]];
+  const otherValues = isEmpty(othertokens) ? [] : [['other', otherTokenCounts]];
 
   const BTCprice = await getBTCPrice();
   const tokenPrices = await getPrices(Object.keys(allTokenCounts));
 
   const allTokenValues = [
     ...exchangeValues,
-    ['eth', ethTokenCounts],
-    ['other', otherTokenCounts],
+    ...ethValues,
+    ...otherValues,
     ['all', allTokenCounts],
   ].map(async ([name, counts]) => {
     const values = await getTokenValues(counts, tokenPrices, BTCprice);

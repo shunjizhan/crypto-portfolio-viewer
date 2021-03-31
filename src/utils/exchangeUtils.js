@@ -6,11 +6,9 @@ const portfolioUtils = require('./portfolioUtils');
 const {
   filterObj,
   ignoreValueBelow,
-  sortByValue,
 } = utils;
 
 const {
-  getTokenValues,
   combineTokenCounts,
 } = portfolioUtils;
 
@@ -37,7 +35,7 @@ const fetchBinanceContractBalances = async binance => {
 
   return filterObj(
     tokenCount,
-    ([name, count]) => count !== 0,
+    ([, count]) => count !== 0,
   );
 };
 
@@ -63,11 +61,10 @@ const fetchFTXContractBalances = async ftx => {
 
   return filterObj(
     tokenCount,
-    ([name, count]) => count !== 0,
+    ([, count]) => count !== 0,
   );
 };
 
-// TODO: can't get LIT value...
 const getExchangeTokenCounts = async (keys, extraFetchers) => {
   const res = {};
   let allTokenCounts = {};

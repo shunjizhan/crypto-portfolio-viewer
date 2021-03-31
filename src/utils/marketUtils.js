@@ -9,36 +9,93 @@ const {
 
 const coingeckoClient = new coingecko();
 
-const _getSymbol2Id = async () => {
-  const data = await coingeckoClient.coins.list();
-  return data.data.reduce((memo, cur) => {
-    const { id, symbol, name } = cur;
-    memo[symbol] = id;
+const getMarketcapRanks = async duplicateSymbolIds => {
+  try {
+    const res = await coingeckoClient.coins.markets({
+      vs_currency: 'usd',
+      ids: duplicateSymbolIds.join(','),
+      order: 'market_cap_desc',
+    });
+
+    // sorted by market cap, so index is rank
+    const ranks = {};
+    res.data.forEach(({ id }, rank) => {
+      ranks[id] = rank;
+    });
+
+    return ranks;
+  } catch (err) {
+    console.log('something went wrong when getting marketcaps...');
+    console.log(err);
+  }
+};
+
+const filterMaxMarketcapId = (symbol2IdMap, marketcapRanks) => Object.fromEntries(
+  Object.entries(symbol2IdMap).map(([symbol, ids]) => {
+    let maxMCId = ids[0];
+    let maxMCRank = marketcapRanks[maxMCId];
+
+    ids.slice(1).forEach(id => {
+      const curMCRank = marketcapRanks[id];
+      if (curMCRank < maxMCRank) {
+        maxMCRank = curMCRank;
+        maxMCId = id;
+      }
+    });
+
+    return [symbol, maxMCId];
+  }),
+);
+
+const getSymbol2Id = async symbols => {
+  const usefulSymbols = new Set(symbols.map(s => sanitizetokenName(s)));
+  const res = await coingeckoClient.coins.list();
+
+  const symbol2IdMap = res.data.reduce((memo, cur) => {
+    if (usefulSymbols.has(cur.symbol)) {
+      const { id, symbol } = cur;
+      if (!memo[symbol]) {
+        memo[symbol] = [];
+      }
+      memo[symbol].push(id);
+    }
 
     return memo;
   }, {});
+
+  const duplicateSymbolIds = Object.values(symbol2IdMap).reduce((allIds, curIds) => {
+    if (curIds.length > 1) {
+      allIds.push(...curIds);
+    }
+
+    return allIds;
+  }, []);
+  const marketcapRanks = await getMarketcapRanks(duplicateSymbolIds);
+
+  return filterMaxMarketcapId(symbol2IdMap, marketcapRanks);
 };
-const getSymbol2Id = memoize(_getSymbol2Id);
 
 const _getPrices = async (params = {}) => {
   const {
     vs_currency = 'usd',
     ids = '',
   } = params;
-  const data = await coingeckoClient.coins.markets(params);
+  const res = await coingeckoClient.coins.markets({ vs_currency, ids });
 
-  return data.data.reduce((memo, cur) => {
+  return res.data.reduce((memo, cur) => {
     const {
-      id, symbol, name, current_price: price,
+      symbol, current_price: price,
     } = cur;
-    memo[symbol] = price;
 
-    return memo;
+    return {
+      ...memo,
+      [symbol]: price,
+    };
   }, {});
 };
 
 const getPrices = async symbols => {
-  const symbol2Id = await getSymbol2Id();
+  const symbol2Id = await getSymbol2Id(symbols);
   const ids = [];
   const notSupported = {};
 
@@ -60,8 +117,11 @@ const getPrices = async symbols => {
 };
 
 const _getBTCPrice = async () => {
-  const res = await getPrices(['BTC']);
-  return res.btc;
+  const res = await coingeckoClient.coins.markets({
+    vs_currency: 'usd',
+    ids: 'bitcoin',
+  });
+  return res.data[0].current_price;
 };
 const getBTCPrice = memoize(_getBTCPrice);
 

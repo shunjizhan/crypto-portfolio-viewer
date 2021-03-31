@@ -12,11 +12,15 @@ const getTokens = async address => {
   const requestURL = `${BASE_URL}/getAddressInfo/${address}?apiKey=freekey`;
   const response = await axios.get(requestURL);
   const {
-    ETH: { balance },
+    ETH: {
+      balance: ETHBalance,
+    },
     tokens,
   } = response.data;
 
-  const tokenCounts = { ETH: balance };
+  const tokenCounts = {
+    ETH: ETHBalance,
+  };
   tokens.forEach(t => {
     const {
       tokenInfo: {
