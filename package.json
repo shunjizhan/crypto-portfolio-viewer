@@ -24,12 +24,15 @@
     "coingecko"
   ],
   "scripts": {
-    "view": "node examples/viewAllAssets",
+    "all": "node examples/viewAllAssets",
+    "eth": "node examples/viewETHAssets",
+    "exchange": "node examples/viewExchangeAssets",
+    "other": "node examples/viewOtherAssets",
     "lint": "eslint src/ examples/ --ext .js"
   },
   "dependencies": {
     "axios": "^0.21.1",
-    "ccxt": "^1.43.76",
+    "ccxt": "^1.46.15",
     "coingecko-api": "^1.0.10",
     "lodash": "^4.17.21"
   },

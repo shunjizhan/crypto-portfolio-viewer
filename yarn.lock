@@ -250,10 +250,10 @@ callsites@^3.0.0:
   resolved "https://registry.yarnpkg.com/callsites/-/callsites-3.1.0.tgz#b3630abd8943432f54b3f0519238e33cd7df2f73"
   integrity sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==
 
-ccxt@^1.43.76:
-  version "1.44.94"
-  resolved "https://registry.yarnpkg.com/ccxt/-/ccxt-1.44.94.tgz#89f0fc5838e346cf44a1af99fd0f3ab74ef2fb66"
-  integrity sha512-wyi7VEKtSXT38JIMq34INYUM2O6tP4hWEWFxNNHERLMGJZxQwi/WNQDv+N3LbowoS2/VKTX3o1eKXakIAvG4jQ==
+ccxt@^1.46.15:
+  version "1.46.15"
+  resolved "https://registry.yarnpkg.com/ccxt/-/ccxt-1.46.15.tgz#86c2580c00d895cb17193c3fd74b469fcceb7db6"
+  integrity sha512-qfTAdX3AsePqopB6sXitxfSXIQ6+Y9hU6ERraQs8dnTUGb8c9eNKD0gYPSpbHID4MyLWPOLFQfSNeEI7H3Jrbg==
 
 chalk@^2.0.0:
   version "2.4.2"
