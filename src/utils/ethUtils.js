@@ -21,33 +21,38 @@ const getTokens = async address => {
   const tokenCounts = {
     ETH: ETHBalance,
   };
+  const prices = {};
   tokens.forEach(t => {
     const {
       tokenInfo: {
         symbol,
         decimals,
+        price: { rate },
       },
       balance,
     } = t;
 
     if (symbol) {
       tokenCounts[symbol] = balance / (10 ** decimals);
+      prices[symbol] = rate;
     }
   });
 
-  return tokenCounts;
+  return [tokenCounts, prices];
 };
 
 const getAllTokenCounts = async addresses => {
-  let tokenCounts = {};
+  let allTokenCounts = {};
+  let allPrices = {};
   await Promise.all(
     addresses.map(async addr => {
-      const tokens = await getTokens(addr);
-      tokenCounts = combineTokenCounts(tokenCounts, tokens);
+      const [tokenCounts, prices] = await getTokens(addr);
+      allTokenCounts = combineTokenCounts(allTokenCounts, tokenCounts);
+      allPrices = combineTokenCounts(allPrices, prices);
     }),
   );
 
-  return tokenCounts;
+  return [allTokenCounts, allPrices];
 };
 
 module.exports = {

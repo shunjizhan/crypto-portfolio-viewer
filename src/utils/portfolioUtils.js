@@ -1,13 +1,23 @@
 const { sum } = require('lodash');
 
 const utils = require('./utils');
-const marketUtils = require('./marketUtils');
 
 const {
   sanitizetokenName,
   sortByValue,
   toFixedDecimal2,
 } = utils;
+
+const overwritePrices = (x, y) => {
+  const res = { ...x };
+  Object.entries(y).forEach(([name, price]) => {
+    if (price) {
+      res[sanitizetokenName(name)] = price;
+    }
+  });
+
+  return res;
+};
 
 const _combineTokenCounts = (x, y) => {
   const res = { ...x };
@@ -127,6 +137,7 @@ const sumOtherTokenCounts = tokens => {
 };
 
 module.exports = {
+  overwritePrices,
   combineTokenCounts,
   getTokenValues,
   sumOtherTokenCounts,

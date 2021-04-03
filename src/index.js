@@ -15,6 +15,7 @@ const {
 } = marketUtils;
 
 const {
+  overwritePrices,
   combineTokenCounts,
   getTokenValues,
   sumOtherTokenCounts,
@@ -53,7 +54,7 @@ const getMyPortfolio = async ({
   } = await getExchangeTokenCounts(keys, extraFetchers);
 
   const otherTokenCounts = sumOtherTokenCounts(othertokens);
-  const ethTokenCounts = await getAllTokenCounts(addresses);
+  const [ethTokenCounts, ethTokenPrices] = await getAllTokenCounts(addresses);
 
   const allTokenCounts = combineTokenCounts(
     exchangeTokenCounts,
@@ -70,7 +71,9 @@ const getMyPortfolio = async ({
   const otherValues = isEmpty(othertokens) ? [] : [['other', otherTokenCounts]];
 
   const BTCprice = await getBTCPrice();
-  const tokenPrices = await getPrices(Object.keys(allTokenCounts));
+  let tokenPrices = await getPrices(Object.keys(allTokenCounts));
+
+  tokenPrices = overwritePrices(tokenPrices, ethTokenPrices);
 
   const allTokenValues = [
     ...exchangeValues,
