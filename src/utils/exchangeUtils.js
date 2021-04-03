@@ -25,7 +25,7 @@ const fetchBinanceContractBalances = async binance => {
       notional: value,
     } = p;
     const tokenName = symbol.replace('USDT', '');
-    const count = parseInt(_count);
+    const count = parseInt(_count, 10);
 
     tokenCount[tokenName] = tokenCount[tokenName]
       ? tokenCount[tokenName] + count
@@ -40,18 +40,31 @@ const fetchBinanceContractBalances = async binance => {
 };
 
 const fetchFTXContractBalances = async ftx => {
+  const CONTRACT_PREMIUM = 0.08;          // assuming contract has average 8% over price than spot
+  const IGNORES = new Set(['EXCH']);      // ignores some contract that's not supported by coingecko
+
   const res = await ftx.fetchPositions();
   const curPositions = res.filter(x => x.size > 0);
 
-  const tokenCount = { USDT: 0 };
+  const tokenCount = {
+    USDT: 0,
+  };
+
   curPositions.forEach(p => {
     const {
       future,
-      size: _count,
+      netSize: _count,
       cost: value,
     } = p;
-    const tokenName = future.split('-')[0];
-    const count = parseInt(_count);
+
+    const [tokenName, type] = future.split('-');
+    let count = parseInt(_count, 10);
+
+    if (IGNORES.has(tokenName)) return;
+
+    if (type !== 'PERP') {
+      count *= (1 + CONTRACT_PREMIUM);
+    }
 
     tokenCount[tokenName] = tokenCount[tokenName]
       ? tokenCount[tokenName] + count
