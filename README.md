@@ -19,6 +19,22 @@ const {
 } = require('./crypto-portfolio-viewer');
 ```
 
+### ETH & ERC20 assets
+we can easily view all ETH and ERC20 tokens using ETH addresses.
+```ts
+const addresses = [                         
+  '0x0000000000000000000000000000000000011111',
+  '0x00000000000000000000000000000000000fffff',
+  // ......
+];
+
+(async () => {
+  const portfolio = await getMyPortfolio({ addresses });
+  printPortfolioNicely(portfolio);
+})();
+```
+[](#other-assets)
+
 ### exchange assets
 we can easily view all exchanges assets using exchange api keys. Exchange namings please refer to [ccxt](https://github.com/ccxt/ccxt#supported-cryptocurrency-exchange-markets).
 ```ts
@@ -39,21 +55,6 @@ const keys = {
   printPortfolioNicely(portfolio);
 })();
 ```
-### ETH & ERC20 assets
-we can easily view all ETH and ERC20 tokens using ETH addresses.
-```ts
-const addresses = [                         
-  '0x0000000000000000000000000000000000011111',
-  '0x00000000000000000000000000000000000fffff',
-  // ......
-];
-
-(async () => {
-  const portfolio = await getMyPortfolio({ addresses });
-  printPortfolioNicely(portfolio);
-})();
-```
-[](#other-assets)
 ### any other assets
 we can easily view any other assets by hard coding their counts. 
 ```ts
