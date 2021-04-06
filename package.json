@@ -34,7 +34,8 @@
     "axios": "^0.21.1",
     "ccxt": "^1.46.15",
     "coingecko-api": "^1.0.10",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "table": "^6.0.9"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
