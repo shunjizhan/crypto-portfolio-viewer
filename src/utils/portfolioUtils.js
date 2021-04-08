@@ -112,7 +112,7 @@ const combineFiat = (tokenCounts, fiatName = 'USDT') => {
   return res;
 };
 
-const getTokenValues = async (_tokenCounts, tokenPrices, BTCprice, sort = sortByValue, transform = combineFiat) => {
+const getTokenValues = (_tokenCounts, tokenPrices, BTCprice, sort = sortByValue, transform = combineFiat) => {
   let tokenCounts = _tokenCounts;
   if (typeof transform === 'function') {
     tokenCounts = transform(tokenCounts);

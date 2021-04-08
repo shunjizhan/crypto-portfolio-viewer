@@ -1,4 +1,6 @@
 const { isEmpty } = require('lodash');
+const chalk = require('chalk');
+
 const utils = require('./utils/utils');
 const portfolioUtils = require('./utils/portfolioUtils');
 const ethUtils = require('./utils/ethUtils');
@@ -30,6 +32,8 @@ const {
   fetchers,
 } = exchangeUtils;
 
+const { log } = console;
+
 // getAllPriceDiff = async tokens => {
 //   const start = '26-02-2021'
 //   const end = '20-03-2021'
@@ -47,14 +51,24 @@ const getMyPortfolio = async ({
   othertokens = {},
   combineExchanges = false,
   extraFetchers = {},
+  verbose = true,
 } = {}) => {
+  verbose && log(chalk.bgGreen(' started to fetch portfolio data ... '));
+  verbose && log(chalk.green('(1/5)'), 'fetching exchange token counts ...');
   const {
     all: exchangeTokenCounts,
     ...eachExchanges                         // interestingly, couldn't put an extra ',' here, otherwise rest element won't be the last element anymore
   } = await getExchangeTokenCounts(keys, extraFetchers);
 
-  const otherTokenCounts = sumOtherTokenCounts(othertokens);
+  const _exchangeValues = combineExchanges
+    ? [['exchange', exchangeTokenCounts]]
+    : Object.entries(eachExchanges);
+
+  verbose && log(chalk.green('(2/5)'), 'fetching ERC20 token counts ...');
   const [ethTokenCounts, ethTokenPrices] = await getAllTokenCounts(addresses);
+
+  verbose && log(chalk.green('(3/5)'), 'fetching other token counts ...');
+  const otherTokenCounts = sumOtherTokenCounts(othertokens);
 
   const allTokenCounts = combineTokenCounts(
     exchangeTokenCounts,
@@ -62,38 +76,29 @@ const getMyPortfolio = async ({
     ethTokenCounts,
   );
 
-  const _exchangeValues = combineExchanges
-    ? [['exchange', exchangeTokenCounts]]
-    : Object.entries(eachExchanges);
-
   const exchangeValues = isEmpty(keys) ? [] : _exchangeValues;
   const ethValues = isEmpty(addresses) ? [] : [['eth', ethTokenCounts]];
   const otherValues = isEmpty(othertokens) ? [] : [['other', otherTokenCounts]];
 
+  verbose && log(chalk.green('(4/5)'), 'fetching all token prices ...');
   const BTCprice = await getBTCPrice();
-  let tokenPrices = await getPrices(Object.keys(allTokenCounts));
+  let tokenPrices = await getPrices(Object.keys(allTokenCounts), verbose);
 
+  verbose && log(chalk.green('(5/5)'), 'calculating all token values ...');
   tokenPrices = overwritePrices(tokenPrices, ethTokenPrices);
-
   const allTokenValues = [
     ...exchangeValues,
     ...ethValues,
     ...otherValues,
     ['all', allTokenCounts],
-  ].map(async ([name, counts]) => {
-    const values = await getTokenValues(counts, tokenPrices, BTCprice);
+  ].map(([name, counts]) => {
+    const values = getTokenValues(counts, tokenPrices, BTCprice);
     return [name, values];
   });
 
-  await Promise.all(allTokenValues);
+  verbose && log(chalk.bgGreen(' finished!! Let\'s go Bitcoin!! '));
 
-  const res = {};
-  allTokenValues.forEach(async p => {
-    const [name, values] = await p;
-    res[name] = values;
-  });
-
-  return res;
+  return Object.fromEntries(allTokenValues);
 };
 
 module.exports = {

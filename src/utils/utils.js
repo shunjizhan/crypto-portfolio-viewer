@@ -1,5 +1,8 @@
 const { pad } = require('lodash');
 const { table } = require('table');
+const chalk = require('chalk');
+
+const { log } = console;
 
 const sanitizetokenName = c => c.toLowerCase();
 
@@ -23,26 +26,25 @@ const printValues = values => {
     const [name, { count, USD, BTC }] = val;
     const ratio = toFixedDecimal1((USD * 100) / total);
 
-    return [name, USD, ratio, BTC, count];
+    return [name, `$${USD}`, `${ratio}%`, `₿${BTC}`, count];
   });
 
   const headerCell = ['name', 'USD', 'ratio', 'BTC', 'count'];
   const output = table([headerCell, ...res]);
 
-  console.log(output);
-  // console.table(Object.fromEntries(res));
+  log(output);
 };
 
 const printPortfolioNicely = res => {
   const MSG_LENGTH = 58;
 
   Object.entries(res).forEach(([name, values]) => {
-    console.log('-'.repeat(MSG_LENGTH));
-    console.log(`₿ ${pad(`${name} tokens `, MSG_LENGTH - 4)} ₿`);
-    console.log('-'.repeat(MSG_LENGTH));
+    log(chalk.green('-'.repeat(MSG_LENGTH)));
+    log(chalk.green(`₿ ${pad(`${name} tokens `, MSG_LENGTH - 4)} ₿`));
+    log(chalk.green('-'.repeat(MSG_LENGTH)));
 
     printValues(values);
-    console.log('');
+    log('');
   });
 };
 

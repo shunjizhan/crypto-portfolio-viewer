@@ -1,11 +1,14 @@
 const { memoize } = require('lodash');
 const coingecko = require('coingecko-api');
+const chalk = require('chalk');
 
 const utils = require('./utils');
 
 const {
   sanitizetokenName,
 } = utils;
+
+const { log } = console;
 
 const coingeckoClient = new coingecko();
 
@@ -25,8 +28,8 @@ const getMarketcapRanks = async duplicateSymbolIds => {
 
     return ranks;
   } catch (err) {
-    console.log('something went wrong when getting marketcaps...');
-    console.log(err);
+    log('something went wrong when getting marketcaps...');
+    log(err);
   }
 };
 
@@ -94,7 +97,7 @@ const _getPrices = async (params = {}) => {
   }, {});
 };
 
-const getPrices = async symbols => {
+const getPrices = async (symbols, verbose = true) => {
   const symbol2Id = await getSymbol2Id(symbols);
   const ids = [];
   const notSupported = {};
@@ -104,7 +107,11 @@ const getPrices = async symbols => {
     if (id) {
       ids.push(id);
     } else {
-      console.warn(`ignored token '${c}': can't find it's coingecko id...`);
+      verbose && log(
+        chalk.yellow('ignored token'),
+        chalk.bgYellow(` ${c} `),
+        chalk.yellow(': can\'t find it\'s coingecko id...'),
+      );
       notSupported[c] = 0;
     }
   });
