@@ -4,7 +4,8 @@ const chalk = require('chalk');
 
 const { log } = console;
 
-const sanitizetokenName = c => c.toLowerCase();
+const sanitizetokenName = t => t.toLowerCase();
+const sanitizeAddress = a => `${a.slice(0, 6)}...${a.slice(a.length - 4)}`;
 
 const sortByValue = values => Object.entries(values).sort(
   ([, { USD: val1 }], [, { USD: val2 }]) => val2 - val1,
@@ -50,6 +51,7 @@ const printPortfolioNicely = res => {
 
 module.exports = {
   sanitizetokenName,
+  sanitizeAddress,
   filterObj,
   ignoreValueBelow,
   sortByValue,

@@ -1,4 +1,5 @@
 const { sum } = require('lodash');
+const { isEmpty } = require('lodash');
 
 const utils = require('./utils');
 
@@ -128,12 +129,14 @@ const getTokenValues = (_tokenCounts, tokenPrices, BTCprice, sort = sortByValue,
 };
 
 const sumOtherTokenCounts = tokens => {
+  if (isEmpty(tokens)) return [];
+
   const res = {};
   Object.entries(tokens).forEach(([name, counts]) => {
     res[name] = sum(counts);
   });
 
-  return res;
+  return [['other', res]];
 };
 
 module.exports = {

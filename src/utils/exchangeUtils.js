@@ -1,4 +1,5 @@
 const ccxt = require('ccxt');
+const { isEmpty } = require('lodash');
 
 const utils = require('./utils');
 const portfolioUtils = require('./portfolioUtils');
@@ -78,10 +79,11 @@ const fetchFTXContractBalances = async ftx => {
   );
 };
 
-const getExchangeTokenCounts = async (keys, extraFetchers) => {
-  const res = {};
-  let allTokenCounts = {};
+const getExchangeTokenCounts = async (keys, extraFetchers, combineExchanges = false) => {
+  if (isEmpty(keys)) return [];
 
+  let allTokenCounts = {};
+  const eachTokenCounts = [];
   const pendings = Object.entries(keys).map(async ([exchangeName, key]) => {
     const exchange = new ccxt[exchangeName](key);
 
@@ -99,13 +101,14 @@ const getExchangeTokenCounts = async (keys, extraFetchers) => {
     }
 
     allTokenCounts = combineTokenCounts(allTokenCounts, tokenCounts);
-    res[exchangeName] = tokenCounts;
+    eachTokenCounts.push([exchangeName, tokenCounts]);
   });
 
   await Promise.all(pendings);
-  res.all = allTokenCounts;
 
-  return res;
+  return combineExchanges
+    ? [['exchange', allTokenCounts]]
+    : eachTokenCounts;
 };
 
 module.exports = {

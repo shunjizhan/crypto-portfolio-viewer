@@ -1,6 +1,10 @@
 const axios = require('axios');
+const { isEmpty } = require('lodash');
 
 const portfolioUtils = require('./portfolioUtils');
+const {
+  sanitizeAddress,
+} = require('./utils');
 
 const {
   combineTokenCounts,
@@ -41,20 +45,28 @@ const getTokens = async address => {
   return [tokenCounts, prices];
 };
 
-const getAllTokenCounts = async addresses => {
-  let allTokenCounts = {};
+const getERC20TokenCounts = async (addresses, combineAddresses = false) => {
+  if (isEmpty(addresses)) return [[], {}];
+
+  const eachTokenCounts = [];
+  let allTokenCounts = [];
   let allPrices = {};
   await Promise.all(
     addresses.map(async addr => {
       const [tokenCounts, prices] = await getTokens(addr);
+      eachTokenCounts.push([sanitizeAddress(addr), tokenCounts]);
       allTokenCounts = combineTokenCounts(allTokenCounts, tokenCounts);
       allPrices = combineTokenCounts(allPrices, prices);
     }),
   );
 
-  return [allTokenCounts, allPrices];
+  const resTokenCounts = combineAddresses
+    ? [['eth', allTokenCounts]]
+    : eachTokenCounts;
+
+  return [resTokenCounts, allPrices];
 };
 
 module.exports = {
-  getAllTokenCounts,
+  getERC20TokenCounts,
 };

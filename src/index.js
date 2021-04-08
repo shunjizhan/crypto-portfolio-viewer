@@ -1,4 +1,3 @@
-const { isEmpty } = require('lodash');
 const chalk = require('chalk');
 
 const utils = require('./utils/utils');
@@ -24,7 +23,7 @@ const {
 } = portfolioUtils;
 
 const {
-  getAllTokenCounts,
+  getERC20TokenCounts,
 } = ethUtils;
 
 const {
@@ -50,35 +49,32 @@ const getMyPortfolio = async ({
   addresses = [],
   othertokens = {},
   combineExchanges = false,
+  combineAddresses = false,
   extraFetchers = {},
   verbose = true,
 } = {}) => {
   verbose && log(chalk.bgGreen(' started to fetch portfolio data ... '));
   verbose && log(chalk.green('(1/5)'), 'fetching exchange token counts ...');
-  const {
-    all: exchangeTokenCounts,
-    ...eachExchanges                         // interestingly, couldn't put an extra ',' here, otherwise rest element won't be the last element anymore
-  } = await getExchangeTokenCounts(keys, extraFetchers);
-
-  const _exchangeValues = combineExchanges
-    ? [['exchange', exchangeTokenCounts]]
-    : Object.entries(eachExchanges);
+  const exchangeTokenCounts = await getExchangeTokenCounts(keys, extraFetchers, combineExchanges);
 
   verbose && log(chalk.green('(2/5)'), 'fetching ERC20 token counts ...');
-  const [ethTokenCounts, ethTokenPrices] = await getAllTokenCounts(addresses);
+  const [ethTokenCounts, ethTokenPrices] = await getERC20TokenCounts(addresses, combineAddresses);
 
   verbose && log(chalk.green('(3/5)'), 'fetching other token counts ...');
   const otherTokenCounts = sumOtherTokenCounts(othertokens);
 
+  let eachTokenCounts = [
+    ...exchangeTokenCounts,
+    ...ethTokenCounts,
+    ...otherTokenCounts,
+  ];
   const allTokenCounts = combineTokenCounts(
-    exchangeTokenCounts,
-    otherTokenCounts,
-    ethTokenCounts,
+    ...eachTokenCounts.map(([, counts]) => counts),
   );
-
-  const exchangeValues = isEmpty(keys) ? [] : _exchangeValues;
-  const ethValues = isEmpty(addresses) ? [] : [['eth', ethTokenCounts]];
-  const otherValues = isEmpty(othertokens) ? [] : [['other', otherTokenCounts]];
+  eachTokenCounts = [
+    ...eachTokenCounts,
+    ['all', allTokenCounts],
+  ];
 
   verbose && log(chalk.green('(4/5)'), 'fetching all token prices ...');
   const BTCprice = await getBTCPrice();
@@ -86,12 +82,8 @@ const getMyPortfolio = async ({
 
   verbose && log(chalk.green('(5/5)'), 'calculating all token values ...');
   tokenPrices = overwritePrices(tokenPrices, ethTokenPrices);
-  const allTokenValues = [
-    ...exchangeValues,
-    ...ethValues,
-    ...otherValues,
-    ['all', allTokenCounts],
-  ].map(([name, counts]) => {
+
+  const allTokenValues = eachTokenCounts.map(([name, counts]) => {
     const values = getTokenValues(counts, tokenPrices, BTCprice);
     return [name, values];
   });
