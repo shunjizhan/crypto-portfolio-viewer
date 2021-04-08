@@ -28,7 +28,8 @@
     "eth": "node examples/viewETHAssets",
     "exchange": "node examples/viewExchangeAssets",
     "other": "node examples/viewOtherAssets",
-    "lint": "eslint src/ examples/ --ext .js"
+    "lint": "eslint src/ examples/ --ext .js",
+    "build": "MODE=production webpack --config webpack.config.js --progress --color"
   },
   "dependencies": {
     "axios": "^0.21.1",
@@ -39,9 +40,17 @@
     "table": "^6.0.9"
   },
   "devDependencies": {
+    "@babel/core": "^7.13.14",
+    "@babel/plugin-proposal-optional-chaining": "^7.13.12",
+    "@babel/preset-env": "^7.13.12",
     "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.2.2",
     "eslint": "^7.23.0",
     "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-plugin-import": "^2.22.1"
+    "eslint-plugin-import": "^2.22.1",
+    "node-polyfill-webpack-plugin": "^1.1.0",
+    "webpack": "^5.31.0",
+    "webpack-bundle-analyzer": "^4.4.0",
+    "webpack-cli": "^4.6.0"
   }
 }
