@@ -20,17 +20,19 @@ const toFixedDecimal = decimal => x => parseFloat(parseFloat(x).toFixed(decimal)
 const toFixedDecimal1 = toFixedDecimal(1);
 const toFixedDecimal2 = toFixedDecimal(2);
 
+const toPrecision5 = x => parseFloat(x.toPrecision(5));
+
 const printValues = values => {
   const total = values.find(([name]) => name === 'TOTAL')[1].USD;
 
   const res = values.map(val => {
-    const [name, { count, USD, BTC }] = val;
+    const [name, { count, USD, BTC, price }] = val;
     const ratio = toFixedDecimal1((USD * 100) / total);
 
-    return [name, `$${USD}`, `${ratio}%`, `₿${BTC}`, count];
+    return [name, `$${USD}`, `${ratio}%`, `₿${BTC}`, `$${toPrecision5(price)}`, count];
   });
 
-  const headerCell = ['name', 'USD', 'ratio', 'BTC', 'count'];
+  const headerCell = ['name', 'USD', 'ratio', 'BTC', 'price', 'count'];
   const output = table([headerCell, ...res]);
 
   log(output);

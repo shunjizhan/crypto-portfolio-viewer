@@ -40,6 +40,7 @@ const getTotalTokenValues = tokens => {
     count: 0,
     USD: 0,
     BTC: 0,
+    price: 0,
   };
 
   Object.values(tokens).forEach(({ BTC, USD }) => {
@@ -82,6 +83,7 @@ const calcTokenValues = (tokenCounts, prices, BTCPrice, ignoreAbsBelow = 100) =>
     if (Math.abs(value) >= ignoreAbsBelow) {
       tokenData.USD = parseInt(count * price);
       tokenData.BTC = toFixedDecimal2(value_BTC);
+      tokenData.price = price;
       res[name] = tokenData;
     }
   });
