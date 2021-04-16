@@ -44,7 +44,7 @@ const { log } = console;
 //   getPriceDiff('dot', start, end)
 // };
 
-const getMyPortfolio = async ({
+const getPortfolio = async ({
   keys = {},
   addresses = [],
   othertokens = {},
@@ -94,7 +94,7 @@ const getMyPortfolio = async ({
 };
 
 module.exports = {
-  getMyPortfolio,
+  getPortfolio,
   printPortfolioNicely,
   fetchers,
 };

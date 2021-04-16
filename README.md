@@ -1,25 +1,26 @@
-# Crypto Portfolio Viwer
+# Crypto Portfolio Viewer
 View your aggregated cryptocurrency portfolio automagically, no matter where the assets are located:
-- exchanges
-- ETH wallets
-- anywhere else, no problem!
-
-### NOTE: stil work in progress!! will be on npm soon!!
-## Install
-`yarn add crypto-portfolio-viewer`  
-or  
-`npm install crypto-portfolio-viewer`
+- exchanges ✅
+- ETH wallets ✅
+- anywhere else, no problem! ✅
+- Polkadot parachains (in the future)
+  
 ___
 ## Basic Usage
+### install
+```
+$ yarn add crypto-portfolio-viewer
+$ npm install crypto-portfolio-viewer --save
+```
 ### import 
 ```ts
 const {
-  getMyPortfolio,
-  printPortfolioNicely,
+  getPortfolio,
+  printPortfolioNicely,   // optional
 } = require('./crypto-portfolio-viewer');
 ```
 
-### ETH & ERC20 assets
+### eth + erc20 assets
 we can easily view all ETH and ERC20 tokens using ETH addresses.
 ```ts
 const addresses = [                         
@@ -29,7 +30,7 @@ const addresses = [
 ];
 
 (async () => {
-  const portfolio = await getMyPortfolio({ addresses });
+  const portfolio = await getPortfolio({ addresses });
   printPortfolioNicely(portfolio);
 })();
 ```
@@ -51,7 +52,7 @@ const keys = {
 };
 
 (async () => {
-  const portfolio = await getMyPortfolio({ keys });
+  const portfolio = await getPortfolio({ keys });
   printPortfolioNicely(portfolio);
 })();
 ```
@@ -59,7 +60,7 @@ const keys = {
 we can easily view any other assets by hard coding their counts. 
 ```ts
 const othertokens = {                        
-  "BTC": [8.5],         // in cold wallet
+  "BTC": [8.5],         // in mysterious wallet
   "BNB": [200],         // in BSC
   "ETH": [10, 30],      // uni-LP, sushi-LP
   "USDT": [
@@ -71,14 +72,16 @@ const othertokens = {
 };
 
 (async () => {
-  const portfolio = await getMyPortfolio({ othertokens });
+  const portfolio = await getPortfolio({ othertokens });
   printPortfolioNicely(portfolio);
 })();
 ```
 
 ### ALL assets
-> Being able to aggregate all assets is the soul of a portfolio viewer. --Aristotélēs
->
+> Being able to aggregate all assets is the soul of a portfolio viewer.
+> -- <cite>Aristotélēs</cite>
+
+
 we can easily view **all of our assets across many different places**, by combining the usages above.
 ```ts
 const keys = {                               
@@ -109,7 +112,7 @@ const othertokens = {
 };
 
 (async () => {
-  const portfolio = await getMyPortfolio({
+  const portfolio = await getPortfolio({
     keys,
     addresses,
     othertokens,
@@ -121,79 +124,82 @@ const othertokens = {
 
 #### example result
 ```shell
+$ node getPortfolio.js
+started to fetch portfolio data ...
+(1/5) fetching exchange token counts ...
+(2/5) fetching ERC20 token counts ...
+(3/5) fetching other token counts ...
+(4/5) fetching all token prices ...
+(5/5) calculating all token values ...
+finished!! Let's go Bitcoin!!
+
 ----------------------------------------------------------
 ₿                    Binance tokens                      ₿
 ----------------------------------------------------------
-[
-  [ 'TOTAL', { count: 0, USD_value: 10000, BTC_value: 1 } ],
-  [ 'BNB', { count: 300, USD_value: 5000, BTC_value: 0.5 } ],
-  [ 'REEF', { count: 100, USD_value: 3000, BTC_value: 0.3 } ],
-  [ 'USDT', { count: 2000, USD_value: 2000, BTC_value: 0.2 } ]
-]
+| name  | USD value | ratio | BTC value | price  | count |
+|-------|-----------|-------|-----------|--------|-------|
+| TOTAL | $25000    | 100%  | ₿2.5      | $0     | 0     |
+| BTC   | $10000    | 40%   | ₿1        | $10000 | 1     |
+| ETH   | $10000    | 40%   | ₿1        | $1000  | 10    |
+| BNB   | $5000     | 20%   | ₿0.5      | $100   | 50    |
 
 ----------------------------------------------------------
 ₿                      FTX tokens                        ₿
 ----------------------------------------------------------
-[
-  [ 'TOTAL', { count: 0, USD_value: 4500, BTC_value: 0.45 } ],
-  [ 'FTT', { count: 120.5, USD_value: 3400, BTC_value: 0.34 } ],
-  [ 'ATOM', { count: 100, USD_value: 1000, BTC_value: 0.1 } ],
-  [ 'ETH', { count: 0.6, USD_value: 600, BTC_value: 0.06 } ],
-  [ 'USDT', { count: -500, USD_value: -500, BTC_value: -0.05 } ]        
-  // negative value means borrowed from contract or margin
-  // this can be disabled or customized.
-]
+| name  | USD value | ratio | BTC value | price  | count |
+|-------|-----------|-------|-----------|--------|-------|
+| TOTAL | $15000    | 100%  | ₿1.5      | $0     | 0     |
+| BTC   | $10000    | 66%   | ₿1        | $10000 | 1     |
+| ATOM  | $10000    | 66%   | ₿1        | $20    | 500   |
+| USDT  | $-5000    | -33%  | ₿-0.5     | $1     | -5000 |
+// negative value means borrowed from contract or margin
+// this can be disabled or customized
 
 ----------------------------------------------------------
 ₿                  ETH + ERC20 tokens                    ₿
 ----------------------------------------------------------
-[
-  [ 'TOTAL', { count: 0, USD_value: 12000, BTC_value: 1.2 } ],
-  [ 'ETH', { count: 5, USD_value: 5000, BTC_value: 0.5 } ],
-  [ 'UNI', { count: 2014.06, USD_value: 3000, BTC_value: 0.3 } ],
-  [ 'SUSHI', { count: 1534.32, USD_value: 2000, BTC_value: 0.2 } ]
-  [ 'USDC', { count: 20000, USD_value: 2000, BTC_value: 0.2 } ],
-]
+| name  | USD value | ratio | BTC value | price  | count |
+|-------|-----------|-------|-----------|--------|-------|
+| TOTAL | $30000    | 100%  | ₿2        | $0     | 0     |
+| UNI   | $20000    | 66%   | ₿2        | $50    | 400   |
+| ETH   | $10000    | 33%   | ₿1        | $1000  | 10    |
 
 ----------------------------------------------------------
 ₿                     other tokens                       ₿
 ----------------------------------------------------------
-[
-  [ 'TOTAL', { count: 0, USD_value: 9500, BTC_value: 0.95 } ],
-  [ 'KSM', { count: 688, USD_value: 5000, BTC_value: 0.5 } ],
-  [ 'DOT', { count: 1000, USD_value: 3000, BTC_value: 0.3 } ],
-  [ 'ATOM', { count: 150, USD_value: 1500, BTC_value: 0.15 } ],
-]
+| name  | USD value | ratio | BTC value | price  | count |
+|-------|-----------|-------|-----------|--------|-------|
+| TOTAL | $50000    | 100%  | ₿5        | $0     | 0     |
+| DOT   | $30000    | 60%   | ₿3        | $100   | 300   |
+| KSM   | $20000    | 40%   | ₿2        | $1000  | 20    |
 
 ----------------------------------------------------------
 ₿                      all tokens                        ₿
 ----------------------------------------------------------
-[
-  [ 'TOTAL', { count: 0, USD_value: 36000, BTC_value: 3.6 } ],
-  [ 'ETH', { count: 5.6, USD_value: 5600, BTC_value: 0.56 } ],
-  [ 'BNB', { count: 300, USD_value: 5000, BTC_value: 0.5 } ],
-  [ 'KSM', { count: 688, USD_value: 5000, BTC_value: 0.5 } ],
-  [ 'FTT', { count: 120.5, USD_value: 3400, BTC_value: 0.34 } ],
-  [ 'UNI', { count: 2014.06, USD_value: 3000, BTC_value: 0.3 } ],
-  [ 'REEF', { count: 100, USD_value: 3000, BTC_value: 0.3 } ],
-  [ 'DOT', { count: 1000, USD_value: 3000, BTC_value: 0.3 } ],
-  [ 'ATOM', { count: 250, USD_value: 2500, BTC_value: 0.25 } ],
-  [ 'SUSHI', { count: 1534.32, USD_value: 2000, BTC_value: 0.2 } ]
-  [ 'USDC', { count: 2000, USD_value: 2000, BTC_value: 0.2 } ],
-  [ 'USDT', { count: 1500, USD_value: 1500, BTC_value: 0.15 } ],
-]
+| name  | USD value | ratio | BTC value | price  | count |
+|-------|-----------|-------|-----------|--------|-------|
+| TOTAL | $120000   | 100%  | ₿12       | $0     | 0     |
+| DOT   | $30000    | 25%   | ₿3        | $100   | 300   |
+| KSM   | $20000    | 16.7% | ₿2        | $1000  | 20    |
+| UNI   | $20000    | 16.7% | ₿2        | $50    | 400   |
+| BTC   | $20000    | 16.7% | ₿2        | $10000 | 2     |
+| ETH   | $20000    | 16.7% | ₿2        | $1000  | 20    |
+| ATOM  | $10000    | 8.3%  | ₿1        | $20    | 500   |
+| BNB   | $5000     | 4.1%  | ₿0.5      | $100   | 50    |
+| USDT  | $-5000    | -4.1% | ₿-0.5     | $1     | -5000 |
 ```
 ___
 ## Advanced Usage
 ### custom printer
-> Viewing result nicely is the soul of a portfolio viewer. --Shakespeare
+> Viewing result nicely is the soul of a portfolio viewer.
+> --<cite>Shakespeare</cite>
 
 we can easily print the result in your favorite fashion:
 ```ts
 const myFavoritePrinter = portfolio => { ... };
 
 (async () => {
-  const portfolio = await getMyPortfolio({
+  const portfolio = await getPortfolio({
     keys,
     addresses,
     othertokens,
@@ -202,28 +208,35 @@ const myFavoritePrinter = portfolio => { ... };
   myFavoritePrinter(portfolio);
 })();
 ```
-### combine exchange assets
-for the exchange tokens, by default we view each exchange separately:
+### combine results
+by default we view each exchange and each ETH address separately:
 ```shell
 ----------------------------------------------------------
 ₿                    Binance tokens                      ₿
 ----------------------------------------------------------
-binance tokens prints here ......
-
+......
 ----------------------------------------------------------
 ₿                      FTX tokens                        ₿
 ----------------------------------------------------------
-FTX tokens prints here ......
+......
+----------------------------------------------------------
+₿                 0x1234...5678 tokens                   ₿
+----------------------------------------------------------
+......
+----------------------------------------------------------
+₿                 0x9876...5432 tokens                   ₿
+----------------------------------------------------------
 ```
 
-to simplify our portfolio, we can combine all exchange tokens as a whole
+to simplify our portfolio, we can combine them as a whole
 ```ts
 (async () => {
-  const portfolio = await getMyPortfolio({
+  const portfolio = await getPortfolio({
     keys,
     addresses,
     othertokens,
-    combineExchanges = true,
+    combineExchanges: true,     // <--here
+    combineAddresses: true,     // <--here
   });
 
   printPortfolioNicely(portfolio);
@@ -269,7 +282,7 @@ There are already 2 fetchers that I personally use, feel free to use them direct
 You can also reference them to write your own, or even better, contribute your custom fetchers : )
 ```ts
 const {
-  getMyPortfolio,
+  getPortfolio,
   printPortfolioNicely,
   fetchers,
 } = require('./crypto-portfolio-viewer');
@@ -280,7 +293,7 @@ const {
 } = fetchers;
 
 (async () => {
-  const portfolio = await getMyPortfolio({
+  const portfolio = await getPortfolio({
     keys,
     addresses,
     othertokens,
@@ -293,6 +306,19 @@ const {
   printPortfolioNicely(portfolio);
 })();
 ```
+
+___
+
+## APIs Summary
+available parameters for `getPortfolio()`:
+| param            | type   | default | required? | description                       |
+|------------------|--------|---------|-----------|-----------------------------------|
+| keys             | object | {}      | no        | exchange api keys                 |
+| addresses        | array  | []      | no        | erc20 addresses                   |
+| othertokens      | object | {}      | no        | other tokens                      |
+| extraFetchers    | object | {}      | no        | customized fetcher for exchanges  |
+| combineExchanges | bool   | false   | no        | combine exchange assets in result |
+| combineAddresses | bool   | false   | no        | combine erc20 assets in result    |
 
 ___
 ## Special Thanks
