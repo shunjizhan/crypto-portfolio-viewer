@@ -1,6 +1,15 @@
 {
   "presets": [
-    "@babel/preset-env"
+    [
+      "@babel/preset-env",
+      {
+        // targets is needed, otherwise when we run in node, it will infinitely print source code...
+        targets: {
+          esmodules: true,
+          node: true,
+        },
+      },
+    ]
   ],
   "plugins": [
     "@babel/plugin-proposal-optional-chaining"

@@ -1,13 +1,17 @@
 const path = require('path');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+
+const mode = process.env.MODE;
 
 module.exports = {
-  mode: 'production',
+  mode,
+  target: 'node',
   entry: path.resolve(__dirname, './src/index.js'),
   output: {
     path: path.resolve(__dirname, './dist'),
     filename: 'crypto-portfolio-viwer.bundle.js',
+    libraryTarget: 'umd',
+    globalObject: 'this',
   },
   resolve: {
     // our code can resolve 'xxx' instead of writing 'xxx.jsx'
@@ -26,7 +30,6 @@ module.exports = {
     ],
   },
   plugins: [
-    new NodePolyfillPlugin(),
-    new BundleAnalyzerPlugin(),
+    // new BundleAnalyzerPlugin(),
   ],
 };

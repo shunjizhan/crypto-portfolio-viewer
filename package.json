@@ -2,7 +2,10 @@
   "name": "crypto-portfolio-viewer",
   "version": "1.0.0",
   "description": "view your aggregated cryptocurrency portfolio in a nice way",
-  "main": "./index.js",
+  "main": "dist/crypto-portfolio-viwer.bundle.js",
+  "files": [
+    "dist/crypto-portfolio-viwer.bundle.js"
+  ],
   "author": "Shunji Zhan <shunhahaha@live.com>",
   "repository": "git@github.com/shunjizhan/crypto-portfolio-viwer.git",
   "homepage": "https://github.com/shunjizhan/crypto-portfolio-viwer",
@@ -29,7 +32,8 @@
     "exchange": "node examples/viewExchangeAssets",
     "other": "node examples/viewOtherAssets",
     "lint": "eslint src/ examples/ --ext .js",
-    "build": "MODE=production webpack --config webpack.config.js --progress --color"
+    "build": "MODE=production webpack --config webpack.config.js --progress --color",
+    "buildDev": "MODE=development webpack --config webpack.config.js --progress --color"
   },
   "dependencies": {
     "axios": "^0.21.1",
@@ -48,7 +52,6 @@
     "eslint": "^7.23.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.22.1",
-    "node-polyfill-webpack-plugin": "^1.1.0",
     "webpack": "^5.31.0",
     "webpack-bundle-analyzer": "^4.4.0",
     "webpack-cli": "^4.6.0"
