@@ -3,7 +3,8 @@ View your aggregated cryptocurrency portfolio automagically, no matter where the
 - exchanges ✅
 - ETH wallets ✅
 - anywhere else, no problem! ✅
-- Polkadot parachains (in the future)
+- Polkadot parachains (soon)
+- BSC & Heco (someday)
   
 ___
 ## Basic Usage
@@ -323,6 +324,9 @@ available parameters for `getPortfolio()`:
 ___
 ## Special Thanks
 Really appreciate all the fantastic works by [ccxt](https://github.com/ccxt/ccxt) and [coingecko-api](https://github.com/miscavage/CoinGecko-API), which provide super useful utilities supporting this library.
+___
+## Bugs? Questions? Contributions?
+Feel free to [open an issue](https://github.com/shunjizhan/crypto-portfolio-viewer/issues), or create a pull request!
 ___
 ## UI
 coming soon

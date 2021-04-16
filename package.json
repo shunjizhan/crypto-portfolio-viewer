@@ -1,7 +1,7 @@
 {
   "name": "crypto-portfolio-viewer",
-  "version": "1.0.0",
-  "description": "view your aggregated cryptocurrency portfolio in a nice way",
+  "version": "1.0.1",
+  "description": "view your aggregated cryptocurrency portfolio across exchanges, ETH wallet, and any other places!",
   "main": "dist/crypto-portfolio-viwer.bundle.js",
   "files": [
     "dist/crypto-portfolio-viwer.bundle.js"
@@ -48,7 +48,8 @@
     "other": "node examples/viewOtherAssets",
     "lint": "eslint src/ examples/ --ext .js",
     "build": "MODE=production webpack --config webpack.config.js --progress --color",
-    "buildDev": "MODE=development webpack --config webpack.config.js --progress --color"
+    "buildDev": "MODE=development webpack --config webpack.config.js --progress --color",
+    "prepublish": "rm -rf dist/ && yarn build"
   },
   "dependencies": {
     "axios": "^0.21.1",
