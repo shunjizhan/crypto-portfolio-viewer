@@ -1,6 +1,6 @@
 {
   "name": "crypto-portfolio-viewer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "view your aggregated cryptocurrency portfolio across exchanges, ETH wallet, and any other places!",
   "main": "dist/crypto-portfolio-viwer.bundle.js",
   "files": [
