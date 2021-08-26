@@ -27,7 +27,7 @@ $ npm install crypto-portfolio-viewer --save
 const {
   getPortfolio,
   printPortfolioNicely,   // optional
-} = require('./crypto-portfolio-viewer');
+} = require('crypto-portfolio-viewer');
 
 /* ----- ES modules ----- */
 import {
